@@ -1,10 +1,8 @@
 package com.code.a.sheep.codeasheep.reader;
 
 import com.code.a.sheep.codeasheep.DocumentIndexer;
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -31,7 +29,6 @@ import java.util.stream.Stream;
  * </ul>
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LittlePrinceReader {
 
     private final DocumentIndexer documentIndexer;
@@ -52,6 +49,7 @@ public class LittlePrinceReader {
     /**
      * Read the file and produces a list of {@link Document}
      * In real life this should be streamed in order to control memory usage
+     *
      * @return
      */
     public List<Map<String, Object>> read() {
@@ -70,6 +68,9 @@ public class LittlePrinceReader {
 
     private Map<String, Object> createDocumentFromLine(String readLine) {
         Map<String, Object> document = new HashMap<>();
+
+
+        document.put("text", readLine);
 
         // If we are on a chapter line
         if (readLine.startsWith("Chapitre")) {
