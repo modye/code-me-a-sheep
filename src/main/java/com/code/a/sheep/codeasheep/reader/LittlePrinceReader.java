@@ -1,21 +1,21 @@
 package com.code.a.sheep.codeasheep.reader;
 
+import com.code.a.sheep.codeasheep.DocumentIndexer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,19 +29,30 @@ import java.util.stream.Stream;
  * </ul>
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LittlePrinceReader {
+
+    private final DocumentIndexer documentIndexer;
 
     @Value("classpath:le-petit-prince.txt")
     private Resource resourceFile;
     private String currentChapter;
 
+    public LittlePrinceReader(DocumentIndexer documentIndexer) {
+        this.documentIndexer = documentIndexer;
+    }
+
+    @PostConstruct
+    private void indexText() throws IOException {
+        documentIndexer.indexDocuments(read());
+    }
+
     /**
      * Read the file and produces a list of {@link Document}
+     * In real life this should be streamed in order to control memory usage
      *
      * @return
      */
-    public List<Document> read() {
+    public List<Map<String, Object>> read() {
         try {
             File resource = new ClassPathResource("le-petit-prince.txt").getFile();
             try (Stream<String> lines = Files.lines(Paths.get(resource.getPath()), Charset.defaultCharset())) {
@@ -55,9 +66,11 @@ public class LittlePrinceReader {
         }
     }
 
-    private Document createDocumentFromLine(String readLine) {
-        Document document = new Document();
-        document.add(new TextField("text", readLine, Field.Store.YES));
+    private Map<String, Object> createDocumentFromLine(String readLine) {
+        Map<String, Object> document = new HashMap<>();
+
+
+        document.put("text", readLine);
 
         // If we are on a chapter line
         if (readLine.startsWith("Chapitre")) {
@@ -65,15 +78,16 @@ public class LittlePrinceReader {
         } else {
             // Dialog mark
             if (readLine.startsWith("-")) {
-                document.add(new TextField("isDialog", "true", Field.Store.YES));
+                document.put("isDialog", true);
             }
             // Question mark
             if (readLine.endsWith("?")) {
-                document.add(new TextField("isQuestion", "true", Field.Store.YES));
+                document.put("isQuestion", true);
             }
         }
 
-        document.add(new TextField("chapter", currentChapter, Field.Store.YES));
+        document.put("chapter", currentChapter);
+
         return document;
     }
 }
