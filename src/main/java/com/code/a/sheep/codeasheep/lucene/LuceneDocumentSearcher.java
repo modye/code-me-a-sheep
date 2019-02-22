@@ -24,56 +24,56 @@ import java.util.stream.Stream;
 @Slf4j
 @DependsOn("littlePrinceReader")
 public class LuceneDocumentSearcher implements DocumentSearcher {
-    private final CustomAnalyzer customAnalyzer;
-    private final IndexSearcher indexSearcher;
+  private final CustomAnalyzer customAnalyzer;
+  private final IndexSearcher indexSearcher;
 
-    public LuceneDocumentSearcher(CustomAnalyzer customAnalyzer, LuceneDocumentIndexer luceneDocumentIndexer) throws IOException {
-        this.customAnalyzer = customAnalyzer;
-        this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
+  public LuceneDocumentSearcher(CustomAnalyzer customAnalyzer, LuceneDocumentIndexer luceneDocumentIndexer) throws IOException {
+    this.customAnalyzer = customAnalyzer;
+    this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
+  }
+
+  // TODO this function should return a Result object
+  public SearchResult searchDocuments(String query) {
+
+    try {
+      Query luceneQuery = parseQuery(query, customAnalyzer);
+
+      // TODO n=10 should be a parameter
+      TopDocs topDocs = indexSearcher.search(luceneQuery, 10);
+      return new SearchResult(
+              topDocs.totalHits,
+              Stream.of(topDocs.scoreDocs).map(this::docToHit).collect(Collectors.toList())
+      );
+    } catch (QueryNodeException | IOException e) {
+      throw new RuntimeException("Oooops, something went bad when searching documents :/.");
     }
+  }
 
-    // TODO this function should return a Result object
-    public SearchResult searchDocuments(String query) {
+  private Query parseQuery(String query, Analyzer customAnalyzer) throws QueryNodeException {
+    StandardQueryParser standardQueryParser = new StandardQueryParser(customAnalyzer);
 
-        try {
-            Query luceneQuery = parseQuery(query, customAnalyzer);
+    // TODO default field should be a constant/parameter
+    return standardQueryParser.parse(query, "text");
+  }
 
-            // TODO n=10 should be a parameter
-            TopDocs topDocs = indexSearcher.search(luceneQuery, 10);
-            return new SearchResult(
-                    topDocs.totalHits,
-                    Stream.of(topDocs.scoreDocs).map(this::docToHit).collect(Collectors.toList())
-            );
-        } catch (QueryNodeException | IOException e) {
-            throw new RuntimeException("Oooops, something went bad when searching documents :/.");
-        }
+  /**
+   * Transform an infrastructure {@link ScoreDoc} object into a {@link Hit}.
+   *
+   * @param scoreDoc
+   * @return
+   */
+  private Hit docToHit(ScoreDoc scoreDoc) {
+
+    try {
+      return new Hit(
+              scoreDoc.score,
+              indexSearcher.doc(scoreDoc.doc)
+                      .getFields()
+                      .stream()
+                      .collect(Collectors.toMap(f -> f.name(), f -> f.stringValue()))
+      );
+    } catch (IOException e) {
+      throw new RuntimeException("Oooops, something went bad when retrieving document " + scoreDoc.doc);
     }
-
-    private Query parseQuery(String query, Analyzer customAnalyzer) throws QueryNodeException {
-        StandardQueryParser standardQueryParser = new StandardQueryParser(customAnalyzer);
-
-        // TODO default field should be a constant/parameter
-        return standardQueryParser.parse(query, "text");
-    }
-
-    /**
-     * Transform an infrastructure {@link ScoreDoc} object into a {@link Hit}.
-     *
-     * @param scoreDoc
-     * @return
-     */
-    private Hit docToHit(ScoreDoc scoreDoc) {
-
-        try {
-            return new Hit(
-                    scoreDoc.score,
-                    indexSearcher.doc(scoreDoc.doc)
-                            .getFields()
-                            .stream()
-                            .collect(Collectors.toMap(f -> f.name(), f -> f.stringValue()))
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Oooops, something went bad when retrieving document " + scoreDoc.doc);
-        }
-    }
+  }
 }

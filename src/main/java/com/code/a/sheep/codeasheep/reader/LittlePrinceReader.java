@@ -31,18 +31,11 @@ import java.util.stream.Stream;
 @Component
 public class LittlePrinceReader {
 
-    private final DocumentIndexer documentIndexer;
-
     @Value("classpath:le-petit-prince.txt")
     private Resource resourceFile;
     private String currentChapter;
 
-    public LittlePrinceReader(DocumentIndexer documentIndexer) {
-        this.documentIndexer = documentIndexer;
-    }
-
-    @PostConstruct
-    private void indexText() throws IOException {
+    public LittlePrinceReader(DocumentIndexer documentIndexer) throws IOException {
         documentIndexer.indexDocuments(read());
     }
 
@@ -69,13 +62,13 @@ public class LittlePrinceReader {
     private Map<String, Object> createDocumentFromLine(String readLine) {
         Map<String, Object> document = new HashMap<>();
 
-
         document.put("text", readLine);
 
         // If we are on a chapter line
         if (readLine.startsWith("Chapitre")) {
             currentChapter = readLine;
         } else {
+
             // Dialog mark
             if (readLine.startsWith("-")) {
                 document.put("isDialog", true);
