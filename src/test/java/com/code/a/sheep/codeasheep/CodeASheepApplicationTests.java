@@ -1,5 +1,6 @@
 package com.code.a.sheep.codeasheep;
 
+import com.code.a.sheep.codeasheep.domain.Facet;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +22,7 @@ public class CodeASheepApplicationTests {
         SearchResult result = documentSearcher.searchDocuments("boas");
 
         assertEquals(5, result.getNbHits());
+        assertEquals(Facet.builder().key("Chapitre 1").count(3).build(), result.getFacets().get(0));
     }
 }
 
