@@ -44,8 +44,8 @@ public class LuceneBooleanField extends LuceneField<Boolean> {
   }
 
   @Override
-  public String getDocValueString(DocIdSetIterator docIdSetIterator) throws IOException {
-    return ((NumericDocValues) docIdSetIterator).longValue() == 1 ? "true" : "false";
+  public Boolean getDocValue(DocIdSetIterator docIdSetIterator) throws IOException {
+    return ((NumericDocValues) docIdSetIterator).longValue() == 1;
   }
 
   @Override

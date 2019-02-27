@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class FacetValue {
-  // TODO could be an object instead of a String, but keep it easy for now
-  private final String key;
+  private final Object key;
   private final int count;
 }

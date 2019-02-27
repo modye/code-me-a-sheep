@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 class FacetCollector extends SimpleCollector {
   private final Map<String, DocIdSetIterator> docIdSetIteratorMap;
-  private final Map<String, Map<String, MutableValueInt>> facets;
+  private final Map<String, Map<Object, MutableValueInt>> facets;
   private final List<String> fields;
   private final LuceneSchema schema;
 
@@ -56,7 +56,7 @@ class FacetCollector extends SimpleCollector {
     for (String field : fields) {
       DocIdSetIterator docIdSetIterator = docIdSetIteratorMap.get(field);
       if (docIdSetIterator.advance(doc) == doc) {
-        facets.get(field).compute(schema.get(field).getDocValueString(docIdSetIterator), (k, v) -> {
+        facets.get(field).compute(schema.get(field).getDocValue(docIdSetIterator), (k, v) -> {
           if (v == null) {
             v = new MutableValueInt();
           }
@@ -82,7 +82,7 @@ class FacetCollector extends SimpleCollector {
             .collect(Collectors.toList());
   }
 
-  public List<FacetValue> getFacet(Map<String, MutableValueInt> facet) {
+  public List<FacetValue> getFacet(Map<Object, MutableValueInt> facet) {
     return facet.entrySet().stream()
             .sorted(Comparator.comparingInt(o -> -o.getValue().value))
             .map(e -> FacetValue.builder().key(e.getKey()).count(e.getValue().value).build())

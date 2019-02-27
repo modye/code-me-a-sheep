@@ -30,7 +30,7 @@ public abstract class LuceneField<T> {
 
   public abstract DocIdSetIterator getDocIdSetIterator(LeafReader reader) throws IOException;
 
-  public abstract String getDocValueString(DocIdSetIterator docIdSetIterator) throws IOException;
+  public abstract T getDocValue(DocIdSetIterator docIdSetIterator) throws IOException;
 
   public abstract T getValue(IndexableField f);
 }

@@ -40,7 +40,7 @@ public class LuceneTextField extends LuceneField<String> {
   }
 
   @Override
-  public String getDocValueString(DocIdSetIterator docIdSetIterator) throws IOException {
+  public String getDocValue(DocIdSetIterator docIdSetIterator) throws IOException {
     return ((SortedDocValues) docIdSetIterator).binaryValue().utf8ToString();
   }
 
