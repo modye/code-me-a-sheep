@@ -7,5 +7,5 @@ import java.util.Map;
 @Data
 public class Hit {
     private final float score;
-    private final Map<String, String> document;
+    private final Map<String, Object> document;
 }
