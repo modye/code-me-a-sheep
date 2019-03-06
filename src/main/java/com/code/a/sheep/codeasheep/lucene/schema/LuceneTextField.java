@@ -16,36 +16,36 @@ import java.util.List;
 import java.util.Map;
 
 public class LuceneTextField extends LuceneField<String> {
-  @Builder
-  public LuceneTextField(String name, boolean isStored, boolean withRawField) {
-    super(name, isStored, withRawField);
-  }
-
-  public List<Field> generateLuceneFields(Map.Entry<String, String> field) {
-    List<Field> luceneFields = new ArrayList<>();
-    String value = field.getValue();
-
-    luceneFields.add(new TextField(field.getKey(), value.toString(), isStored() ? Field.Store.YES : Field.Store.NO));
-
-    if (this.isWithRawField()) {
-      luceneFields.add(new SortedDocValuesField(getRawFieldName(field.getKey()), new BytesRef(field.getValue().toString())));
+    @Builder
+    public LuceneTextField(String name, boolean isStored, boolean withRawField) {
+        super(name, isStored, withRawField);
     }
 
-    return luceneFields;
-  }
+    public List<Field> generateLuceneFields(Map.Entry<String, String> field) {
+        List<Field> luceneFields = new ArrayList<>();
+        String value = field.getValue();
 
-  @Override
-  public DocIdSetIterator getDocIdSetIterator(LeafReader reader) throws IOException {
-    return reader.getSortedDocValues(getRawFieldName(name));
-  }
+        luceneFields.add(new TextField(field.getKey(), value, isStored() ? Field.Store.YES : Field.Store.NO));
 
-  @Override
-  public String getDocValue(DocIdSetIterator docIdSetIterator) throws IOException {
-    return ((SortedDocValues) docIdSetIterator).binaryValue().utf8ToString();
-  }
+        if (this.isWithRawField()) {
+            luceneFields.add(new SortedDocValuesField(getRawFieldName(field.getKey()), new BytesRef(field.getValue())));
+        }
 
-  @Override
-  public String getValue(IndexableField f) {
-    return f.stringValue();
-  }
+        return luceneFields;
+    }
+
+    @Override
+    public DocIdSetIterator getDocIdSetIterator(LeafReader reader) throws IOException {
+        return reader.getSortedDocValues(getRawFieldName(name));
+    }
+
+    @Override
+    public String getDocValue(DocIdSetIterator docIdSetIterator) throws IOException {
+        return ((SortedDocValues) docIdSetIterator).binaryValue().utf8ToString();
+    }
+
+    @Override
+    public String getValue(IndexableField f) {
+        return f.stringValue();
+    }
 }

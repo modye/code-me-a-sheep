@@ -1,8 +1,8 @@
 package com.code.a.sheep.codeasheep;
 
-import com.code.a.sheep.codeasheep.domain.Facet;
 import com.code.a.sheep.codeasheep.domain.FacetValue;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
+import com.code.a.sheep.codeasheep.interfaces.DocumentSearcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

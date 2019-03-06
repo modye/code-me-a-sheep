@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class FacetValue {
-  private final Object key;
-  private final int count;
+    private final Object key;
+    private final int count;
 }

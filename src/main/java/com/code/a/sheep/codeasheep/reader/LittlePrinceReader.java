@@ -1,13 +1,12 @@
 package com.code.a.sheep.codeasheep.reader;
 
-import com.code.a.sheep.codeasheep.DocumentIndexer;
+import com.code.a.sheep.codeasheep.interfaces.DocumentIndexer;
 import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -18,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.code.a.sheep.codeasheep.domain.DocumentFields.*;
 
 /**
  * Component used to read the Little Prince book and to produce from each line a well formed {@link Document} having several properties:
@@ -45,7 +46,7 @@ public class LittlePrinceReader {
      *
      * @return
      */
-    public List<Map<String, Object>> read() {
+    private List<Map<String, Object>> read() {
         try {
             File resource = new ClassPathResource("le-petit-prince.txt").getFile();
             try (Stream<String> lines = Files.lines(Paths.get(resource.getPath()), Charset.defaultCharset())) {
@@ -59,10 +60,16 @@ public class LittlePrinceReader {
         }
     }
 
+    /**
+     * Convert a line into a Map<String, Object> ready to be indexed in the search engine.
+     *
+     * @param readLine line to convert
+     * @return the converted line as a Map<String, Object>
+     */
     private Map<String, Object> createDocumentFromLine(String readLine) {
         Map<String, Object> document = new HashMap<>();
 
-        document.put("text", readLine);
+        document.put(TEXT.getName(), readLine);
 
         // If we are on a chapter line
         if (readLine.startsWith("Chapitre")) {
@@ -71,15 +78,15 @@ public class LittlePrinceReader {
 
             // Dialog mark
             if (readLine.startsWith("-")) {
-                document.put("isDialog", true);
+                document.put(IS_DIALOG.getName(), true);
             }
             // Question mark
             if (readLine.endsWith("?")) {
-                document.put("isQuestion", true);
+                document.put(IS_QUESTION.getName(), true);
             }
         }
 
-        document.put("chapter", currentChapter);
+        document.put(CHAPTER.getName(), currentChapter);
 
         return document;
     }
