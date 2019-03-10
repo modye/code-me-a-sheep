@@ -8,6 +8,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.RAMDirectory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  * Component used to index documents in Lucence
  */
 @Component
+@Profile("lucene")
 @Slf4j
 public class LuceneDocumentIndexer implements DocumentIndexer {
     private final IndexWriter indexWriter;

@@ -17,6 +17,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -31,6 +32,7 @@ import static com.code.a.sheep.codeasheep.domain.DocumentFields.TEXT;
 
 
 @Component
+@Profile("lucene")
 @Slf4j
 @DependsOn("littlePrinceReader")
 public class LuceneDocumentSearcher implements DocumentSearcher {
