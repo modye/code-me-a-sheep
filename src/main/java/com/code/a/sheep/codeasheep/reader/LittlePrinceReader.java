@@ -41,7 +41,7 @@ public class LittlePrinceReader {
     }
 
     /**
-     * Read the file and produces a list of {@link Document}
+     * Read the file and produces a list of document representation.
      * In real life this should be streamed in order to control memory usage
      *
      * @return

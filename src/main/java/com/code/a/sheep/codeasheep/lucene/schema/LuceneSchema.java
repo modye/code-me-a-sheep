@@ -1,5 +1,6 @@
 package com.code.a.sheep.codeasheep.lucene.schema;
 
+import com.code.a.sheep.codeasheep.Schema;
 import org.apache.lucene.document.Field;
 
 import java.util.HashMap;
@@ -8,17 +9,17 @@ import java.util.Map;
 
 /**
  * Represents the schema for our document.
- * This class is a clever {@link HashMap<String, LuceneField>}
+ * This class is a clever {@link HashMap <String, LuceneField>}
  */
-public class LuceneSchema extends HashMap<String, LuceneField> {
 
+public class LuceneSchema extends Schema<LuceneField> {
     /**
      * Add a field in the schema
      *
      * @return the schema, for fluent calls
      */
     public LuceneSchema addField(LuceneField field) {
-        this.put(field.getName(), field);
+        this.addField(field.getName(), field);
         return this;
     }
 
