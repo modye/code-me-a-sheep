@@ -45,9 +45,9 @@ public class PlainJavaIndex {
     public void commit() {
         Collection<PlainJavaDocument> bufferedDocuments = documentStore.getBufferedDocuments();
         if (bufferedDocuments != null) {
-            bufferedDocuments.stream().forEach(document -> {
+            bufferedDocuments.forEach(document -> {
                 // for each field, create searching structures
-                document.entrySet().stream().forEach(e -> {
+                document.entrySet().forEach(e -> {
                     PlainJavaField plainJavaField = schema.get(e.getKey());
                     if (plainJavaField != null) {
                         plainJavaField.indexFieldContent(document.getId(), e.getValue(), bufferedDocuments.size());
@@ -59,7 +59,7 @@ public class PlainJavaIndex {
         documentStore.commit();
 
         // finalize searching structures
-        schema.entrySet().stream().forEach(entry -> entry.getValue().commit());
+        schema.entrySet().forEach(entry -> entry.getValue().commit());
     }
 
     /**
