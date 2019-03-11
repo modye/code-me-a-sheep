@@ -60,7 +60,7 @@ public class PlainJavaDocumentStore {
     public void commit() {
         store = new Document[temporaryDocumentBuffer.size()];
         // documents could be shuffled in the buffer
-        temporaryDocumentBuffer.stream().forEach(document -> store[document.getId()] = document);
+        temporaryDocumentBuffer.forEach(document -> store[document.getId()] = document);
 
         // free temporary buffer
         temporaryDocumentBuffer = null;

@@ -1,5 +1,6 @@
 package com.code.a.sheep.codeasheep.plain.index;
 
+import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.domain.Hit;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 
@@ -10,7 +11,6 @@ import java.util.PriorityQueue;
 
 /**
  * A simple implementation of result collecting with scoring
- *
  */
 public class PlainJavaResultCollector {
 
@@ -51,11 +51,13 @@ public class PlainJavaResultCollector {
                     }
                     // we start scoring the new one
                     currentId = id;
-                    score = computeScore(postingList);
+                    if (id != null) {
+                        score = computeScore(postingList, documentStore.getDocument(currentId));
+                    }
                 } else {
                     // Same document, we update the score
                     // TODO this should be a bit more complicated (check tf/idf formulae)
-                    score += computeScore(postingList);
+                    score += computeScore(postingList, documentStore.getDocument(currentId));
                 }
 
                 // reinsert posting list in priority queue
@@ -73,7 +75,15 @@ public class PlainJavaResultCollector {
         return builder.build();
     }
 
-    private float computeScore(PlainJavaPostingList postingList) {
+    private float computeScore(PlainJavaPostingList postingList, Document document) {
+        return idf(postingList) / fieldLength(document, postingList.getSearchedField());
+    }
+
+    private float idf(PlainJavaPostingList postingList) {
         return (float) documentStore.size() / (float) postingList.getMaxSize();
+    }
+
+    private float fieldLength(Document document, String field) {
+        return document.get(field).toString().split(" ").length;
     }
 }

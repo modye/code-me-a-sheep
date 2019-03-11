@@ -1,7 +1,6 @@
 package com.code.a.sheep.codeasheep.plain.index;
 
 import com.code.a.sheep.codeasheep.domain.Document;
-import com.code.a.sheep.codeasheep.domain.Hit;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaField;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaSchema;
@@ -89,7 +88,9 @@ public class PlainJavaIndex {
                 .map(entry -> {
                     PlainJavaField plainJavaField = schema.get(entry.getKey());
                     if (plainJavaField != null) {
-                        return plainJavaField.searchDocuments(entry.getValue());
+                        List<PlainJavaPostingList> postingLists = plainJavaField.searchDocuments(entry.getValue());
+                        postingLists.forEach(p -> p.setSearchedField(entry.getKey()));
+                        return postingLists;
                     } else {
                         return null;
                     }
