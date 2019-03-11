@@ -1,11 +1,16 @@
 package com.code.a.sheep.codeasheep.domain;
 
+import lombok.Builder;
 import lombok.Data;
 
-import java.util.Map;
-
 @Data
-public class Hit {
+@Builder
+public class Hit implements Comparable<Hit>{
     private final float score;
-    private final Map<String, Object> document;
+    private final Document document;
+
+    @Override
+    public int compareTo(Hit o) {
+        return Float.compare(score, o.getScore());
+    }
 }

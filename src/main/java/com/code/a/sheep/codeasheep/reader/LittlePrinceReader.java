@@ -1,7 +1,7 @@
 package com.code.a.sheep.codeasheep.reader;
 
+import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.interfaces.DocumentIndexer;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,6 +36,8 @@ public class LittlePrinceReader {
 
     public LittlePrinceReader(DocumentIndexer documentIndexer) throws IOException {
         documentIndexer.indexDocuments(read());
+        // commit index
+        documentIndexer.commit();
     }
 
     /**
@@ -46,7 +46,7 @@ public class LittlePrinceReader {
      *
      * @return
      */
-    private List<Map<String, Object>> read() {
+    private List<Document> read() {
         try {
             File resource = new ClassPathResource("le-petit-prince.txt").getFile();
             try (Stream<String> lines = Files.lines(Paths.get(resource.getPath()), Charset.defaultCharset())) {
@@ -66,8 +66,8 @@ public class LittlePrinceReader {
      * @param readLine line to convert
      * @return the converted line as a Map<String, Object>
      */
-    private Map<String, Object> createDocumentFromLine(String readLine) {
-        Map<String, Object> document = new HashMap<>();
+    private Document createDocumentFromLine(String readLine) {
+        Document document = new Document();
 
         document.put(TEXT.getName(), readLine);
 

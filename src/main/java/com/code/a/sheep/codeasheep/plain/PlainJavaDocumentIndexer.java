@@ -1,5 +1,6 @@
 package com.code.a.sheep.codeasheep.plain;
 
+import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.interfaces.DocumentIndexer;
 import com.code.a.sheep.codeasheep.plain.index.PlainJavaIndex;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaSchema;
@@ -24,7 +25,12 @@ public class PlainJavaDocumentIndexer implements DocumentIndexer {
     }
 
     @Override
-    public void indexDocuments(@NotNull List<Map<String, Object>> documents) {
-        documents.stream().forEach(index::addDocument);
+    public void indexDocuments(@NotNull List<Document> documents) {
+        index.addDocuments(documents);
+    }
+
+    @Override
+    public void commit() {
+        index.commit();
     }
 }

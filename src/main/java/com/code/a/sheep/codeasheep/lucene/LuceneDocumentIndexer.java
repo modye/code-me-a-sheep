@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -34,22 +33,30 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     }
 
     @Override
-    public void indexDocuments(@NotNull List<Map<String, Object>> documents) {
+    public void indexDocuments(@NotNull List<com.code.a.sheep.codeasheep.domain.Document> documents) {
         try {
             List<Document> luceneDocuments = mapToLuceneDocuments(documents);
             // Index the document in Lucene
             indexWriter.addDocuments(luceneDocuments);
-            // flush to make the document searchable (in real life this should be done in an asynchronous way)
-            indexWriter.flush();
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when indexing the documents", ex);
+        }
+    }
+
+    @Override
+    public void commit() {
+        // commit to make the document searchable (in real life this should be done in an asynchronous way)
+        try {
+            indexWriter.commit();
+        } catch (IOException ex) {
+            throw new RuntimeException("Oooops, something went bad when flushing the documents", ex);
         }
     }
 
     /**
      * Map the documents into lucene {@link Document}.
      */
-    private List<Document> mapToLuceneDocuments(List<Map<String, Object>> documents) {
+    private List<Document> mapToLuceneDocuments(List<com.code.a.sheep.codeasheep.domain.Document> documents) {
         return documents.stream().map(this::mapToLuceneDocument).collect(Collectors.toList());
     }
 
@@ -59,7 +66,7 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
      *
      * @param document map of key/value
      */
-    private Document mapToLuceneDocument(Map<String, Object> document) {
+    private Document mapToLuceneDocument(com.code.a.sheep.codeasheep.domain.Document document) {
         Document luceneDocument = new Document();
         document.entrySet().stream()
                 .map(luceneSchema::generateLuceneFields)

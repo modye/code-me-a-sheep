@@ -2,6 +2,7 @@ package com.code.a.sheep.codeasheep;
 
 import com.code.a.sheep.codeasheep.domain.FacetValue;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
+import com.code.a.sheep.codeasheep.interfaces.DocumentIndexer;
 import com.code.a.sheep.codeasheep.interfaces.DocumentSearcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +23,12 @@ public class CodeASheepApplicationTests {
     @Autowired
     private DocumentSearcher documentSearcher;
 
+    @Autowired
+    private DocumentIndexer documentIndexer;
+
     @Test
     public void simpleSearch() {
-        SearchResult result = documentSearcher.searchDocuments("boas", Collections.singletonList("chapter"));
+        SearchResult result = documentSearcher.searchDocuments("text:boas", Collections.singletonList("chapter"));
 
         assertEquals(5, result.getNbHits());
         assertEquals(FacetValue.builder().key("Chapitre 1").count(3).build(),

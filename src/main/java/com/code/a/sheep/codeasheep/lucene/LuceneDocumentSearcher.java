@@ -1,5 +1,6 @@
 package com.code.a.sheep.codeasheep.lucene;
 
+import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.domain.Facet;
 import com.code.a.sheep.codeasheep.domain.Hit;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
@@ -24,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,11 +37,12 @@ import static com.code.a.sheep.codeasheep.domain.DocumentFields.TEXT;
 @DependsOn("littlePrinceReader")
 public class LuceneDocumentSearcher implements DocumentSearcher {
     private final CustomAnalyzer customAnalyzer;
-    private final IndexSearcher indexSearcher;
+    private IndexSearcher indexSearcher;
+    private LuceneDocumentIndexer luceneDocumentIndexer;
     private final LuceneSchema luceneSchema;
 
     /**
-     * Initiliazes component.
+     * Initializes component.
      *
      * @param customAnalyzer
      * @param luceneDocumentIndexer
@@ -51,6 +52,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
     public LuceneDocumentSearcher(CustomAnalyzer customAnalyzer, LuceneDocumentIndexer luceneDocumentIndexer, LuceneSchema luceneSchema) throws IOException {
         this.customAnalyzer = customAnalyzer;
         this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
+        this.luceneDocumentIndexer = luceneDocumentIndexer;
         this.luceneSchema = luceneSchema;
     }
 
@@ -69,6 +71,17 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
 
         } catch (QueryNodeException | IOException e) {
             throw new RuntimeException("Oooops, something went bad when searching documents :/.");
+        }
+    }
+
+    @Override
+    public void refresh() {
+        // Commit
+        luceneDocumentIndexer.commit();
+        try {
+            this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
+        } catch (IOException e) {
+            throw new RuntimeException("Oooops, something went bad when refreshing index.");
         }
     }
 
@@ -111,11 +124,15 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
     private Hit docToHit(ScoreDoc scoreDoc) {
 
         try {
-            Map<String, Object> document = indexSearcher.doc(scoreDoc.doc)
+            Document document = new Document(indexSearcher.doc(scoreDoc.doc)
                     .getFields()
                     .stream()
-                    .collect(Collectors.toMap(IndexableField::name, f -> luceneSchema.get(f.name()).getValue(f)));
-            return new Hit(scoreDoc.score, document);
+                    .collect(Collectors.toMap(IndexableField::name, f -> luceneSchema.get(f.name()).getValue(f))));
+
+            return Hit.builder()
+                    .score(scoreDoc.score)
+                    .document(document)
+                    .build();
 
         } catch (IOException e) {
             throw new RuntimeException("Oooops, something went bad when retrieving document " + scoreDoc.doc);

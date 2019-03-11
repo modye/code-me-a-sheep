@@ -13,6 +13,7 @@ public class PlainJavaFieldIndex {
         invertedIndex = new HashMap<>();
     }
 
+
     /**
      * Add a document id for a given token in the posting list.
      *
@@ -33,5 +34,12 @@ public class PlainJavaFieldIndex {
      */
     public PlainJavaPostingList searchDocument(Object token) {
         return invertedIndex.get(token);
+    }
+
+    /**
+     * Finalize posting lists. In this example we just set the final size of these postings.
+     */
+    public void commit() {
+        invertedIndex.entrySet().stream().forEach(entry -> entry.getValue().commit());
     }
 }
