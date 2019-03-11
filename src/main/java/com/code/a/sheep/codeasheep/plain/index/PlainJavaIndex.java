@@ -20,10 +20,12 @@ import java.util.stream.Collectors;
 public class PlainJavaIndex {
     private final PlainJavaSchema schema;
     private final PlainJavaDocumentStore documentStore;
+    private final PlainJavaResultCollector resultCollector;
 
     public PlainJavaIndex(PlainJavaSchema schema) {
         this.schema = schema;
         documentStore = new PlainJavaDocumentStore();
+        resultCollector = new PlainJavaResultCollector(documentStore);
     }
 
     public void addDocuments(@NotNull List<Document> documents) {
@@ -73,65 +75,7 @@ public class PlainJavaIndex {
 
         List<PlainJavaPostingList> postingLists = retrievePostingLists(parsedQuery);
 
-        return collectResultAndComputeScore(postingLists, size);
-    }
-
-    /**
-     * TODO: move this function in a specific document collector
-     * Collect results and compute score with a really simple function based on document/token frequencies.
-     * Currently we just implement a disjunction (OR).
-     *
-     * @param postingLists posting lists to be used
-     * @return a search result
-     */
-    private SearchResult collectResultAndComputeScore(List<PlainJavaPostingList> postingLists, int size) {
-        SearchResult.SearchResultBuilder builder = SearchResult.builder();
-        List<Hit> hits = new ArrayList<>();
-
-        /** Posting list are sorted and implements {@link Comparable} */
-        PriorityQueue<PlainJavaPostingList> mergingQueue = new PriorityQueue<>(postingLists);
-
-        Integer currentId = -1;
-        float score = 0;
-
-        while (!mergingQueue.isEmpty()) {
-            PlainJavaPostingList postingList = mergingQueue.poll();
-            if (postingList != null) {
-                Integer id = postingList.pollFirst();
-                if (id == null || !id.equals(currentId)) {
-                    if (currentId != -1) {
-                        // new document id found, we finalize last one
-                        hits.add(Hit.builder()
-                                .score(score)
-                                .document(documentStore.getDocument(currentId))
-                                .build());
-                    }
-                    // we start scoring the new one
-                    currentId = id;
-                    score = computeScore(postingList);
-                } else {
-                    // Same document, we update the score
-                    // TODO this should be a bit more complicated (check tf/idf formulae)
-                    score += computeScore(postingList);
-                }
-
-                // reinsert posting list in priority queue
-                if (id != null) {
-                    mergingQueue.add(postingList);
-                }
-            }
-        }
-
-        // Sort result
-        hits.sort(Comparator.reverseOrder());
-        builder.hits(hits.subList(0, Math.min(size, hits.size())));
-        builder.nbHits(hits.size());
-
-        return builder.build();
-    }
-
-    private float computeScore(PlainJavaPostingList postingList) {
-        return (float) documentStore.size() / (float) postingList.getMaxSize();
+        return resultCollector.collectAndComputeScore(postingLists, size);
     }
 
     /**

@@ -20,7 +20,6 @@ public class PlainJavaDocumentSearcher implements DocumentSearcher {
 
     @Override
     public SearchResult searchDocuments(@NotNull String query, List<String> facetFields) {
-        // TODO should be a scored result, not a simple posting list
         // TODO size should be a parameter
         return index.search(query, 10);
     }
