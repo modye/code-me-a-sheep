@@ -1,5 +1,7 @@
 package com.code.a.sheep.codeasheep.interfaces;
 
+import com.code.a.sheep.codeasheep.domain.Document;
+
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
@@ -14,5 +16,10 @@ public interface DocumentIndexer {
      *
      * @param documents a List of Map<String, Object> that represents documents
      */
-    void indexDocuments(@NotNull List<Map<String, Object>> documents);
+    void indexDocuments(@NotNull List<Document> documents);
+
+    /**
+     * Commit documents and create indexing structures in order to make documents searchable
+     */
+    void commit();
 }

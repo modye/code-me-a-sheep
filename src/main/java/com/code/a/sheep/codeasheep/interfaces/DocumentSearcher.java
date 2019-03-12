@@ -17,4 +17,6 @@ public interface DocumentSearcher {
      * @param facetFields execute facets on those fields
      */
     SearchResult searchDocuments(@NotNull String query, List<String> facetFields);
+
+    void refresh();
 }

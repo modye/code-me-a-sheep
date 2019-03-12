@@ -14,6 +14,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public abstract class LuceneField<T> {
+
+    //TODO MOD
     private static final String RAW_SUFFIX = ".raw";
     protected final String name;
 

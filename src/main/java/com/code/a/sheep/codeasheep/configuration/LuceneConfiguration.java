@@ -11,6 +11,7 @@ import org.apache.lucene.analysis.util.ClasspathResourceLoader;
 import org.apache.lucene.analysis.util.ResourceLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
 
@@ -20,6 +21,7 @@ import static com.code.a.sheep.codeasheep.domain.DocumentFields.*;
  * Configure application.
  */
 @Configuration
+@Profile("lucene")
 public class LuceneConfiguration {
 
     @Bean
@@ -40,6 +42,7 @@ public class LuceneConfiguration {
      * @return
      * @throws IOException
      */
+    // TODO check
     @Bean
     public CustomAnalyzer createLuceneAnalyzer(ResourceLoader resourceLoader) throws IOException {
         return CustomAnalyzer.builder(resourceLoader)
@@ -62,6 +65,7 @@ public class LuceneConfiguration {
      * @return
      */
     @Bean
+    // TODO
     public LuceneSchema createLuceneSchema() {
         return new LuceneSchema()
                 // Text is stored
@@ -69,6 +73,8 @@ public class LuceneConfiguration {
                         .name(TEXT.getName())
                         .isStored(true)
                         .build())
+                // TODO
+                // TODO TU parce que chapter pas raw
                 // Chapter is stored and has a raw field
                 .addField(LuceneTextField.builder()
                         .name(CHAPTER.getName())
@@ -81,6 +87,7 @@ public class LuceneConfiguration {
                         .isStored(false)
                         .withRawField(true)
                         .build())
+                // TODO
                 // isDialog is not stored and has a raw field
                 .addField(LuceneBooleanField.builder()
                         .name(IS_DIALOG.getName())
