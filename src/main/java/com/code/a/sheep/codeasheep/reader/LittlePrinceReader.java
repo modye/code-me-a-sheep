@@ -67,6 +67,9 @@ public class LittlePrinceReader {
      * @return the converted line as a Map<String, Object>
      */
     private Document createDocumentFromLine(String readLine) {
+
+
+        //TODO 1
         Document document = new Document();
 
         document.put(TEXT.getName(), readLine);

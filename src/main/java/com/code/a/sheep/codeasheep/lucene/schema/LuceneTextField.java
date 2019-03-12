@@ -25,6 +25,9 @@ public class LuceneTextField extends LuceneField<String> {
         List<Field> luceneFields = new ArrayList<>();
         String value = field.getValue();
 
+        // TODO ?
+
+
         luceneFields.add(new TextField(field.getKey(), value, isStored() ? Field.Store.YES : Field.Store.NO));
 
         if (this.isWithRawField()) {
