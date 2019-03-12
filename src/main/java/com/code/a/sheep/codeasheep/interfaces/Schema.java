@@ -1,4 +1,4 @@
-package com.code.a.sheep.codeasheep;
+package com.code.a.sheep.codeasheep.interfaces;
 
 import java.util.HashMap;
 

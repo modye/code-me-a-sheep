@@ -1,6 +1,6 @@
 package com.code.a.sheep.codeasheep.lucene.schema;
 
-import com.code.a.sheep.codeasheep.Schema;
+import com.code.a.sheep.codeasheep.interfaces.Schema;
 import org.apache.lucene.document.Field;
 
 import java.util.HashMap;

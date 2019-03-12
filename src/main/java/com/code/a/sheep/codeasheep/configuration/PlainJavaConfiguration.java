@@ -1,8 +1,5 @@
 package com.code.a.sheep.codeasheep.configuration;
 
-import com.code.a.sheep.codeasheep.lucene.schema.LuceneBooleanField;
-import com.code.a.sheep.codeasheep.lucene.schema.LuceneSchema;
-import com.code.a.sheep.codeasheep.lucene.schema.LuceneTextField;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaField;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaSchema;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import static com.code.a.sheep.codeasheep.domain.DocumentFields.*;
-import static com.code.a.sheep.codeasheep.domain.DocumentFields.IS_DIALOG;
 
 /**
  * Configure the application with a simple plain Java implementation

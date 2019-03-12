@@ -96,6 +96,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
     private List<Facet> aggregateResultOnField(List<String> facetFields, Query luceneQuery) throws IOException {
         if (!CollectionUtils.isEmpty(facetFields)) {
             FacetCollector collector = new FacetCollector(facetFields, luceneSchema);
+            // TODO create collector
             indexSearcher.search(luceneQuery, collector);
 
             return collector.getFacets();

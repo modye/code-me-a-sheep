@@ -28,6 +28,8 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     private final LuceneSchema luceneSchema;
 
     public LuceneDocumentIndexer(CustomAnalyzer customAnalyzer, LuceneSchema luceneSchema) throws IOException {
+        //TODO MOD
+        // TODO analyzer
         this.indexWriter = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(customAnalyzer));
         this.luceneSchema = luceneSchema;
     }
@@ -35,8 +37,11 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     @Override
     public void indexDocuments(@NotNull List<com.code.a.sheep.codeasheep.domain.Document> documents) {
         try {
+            // TODO call mapTo
             List<Document> luceneDocuments = mapToLuceneDocuments(documents);
             // Index the document in Lucene
+            // TODO ?
+            // TODO TU ?
             indexWriter.addDocuments(luceneDocuments);
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when indexing the documents", ex);
@@ -47,6 +52,7 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     public void commit() {
         // commit to make the document searchable (in real life this should be done in an asynchronous way)
         try {
+            // TODO
             indexWriter.commit();
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when flushing the documents", ex);
