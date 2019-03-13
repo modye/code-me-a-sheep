@@ -11,20 +11,49 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class represents a field in Lucene
+ *
+ * @param <T>
+ */
 @AllArgsConstructor
 @Data
 public abstract class LuceneField<T> {
 
-    //TODO MOD
+    /**
+     * Suffix used for additional raw fields.
+     * Raw field for field "foo" will be "foo.raw"
+     */
     private static final String RAW_SUFFIX = ".raw";
+    /**
+     * Name of the field
+     */
     protected final String name;
-
+    /**
+     * Is the field stored ?
+     */
     private final boolean isStored;
+    /**
+     * Does the field have an additional raw field ?
+     */
     private final boolean withRawField;
 
-    public abstract List<Field> generateLuceneFields(Map.Entry<String, T> field);
+    /**
+     * Generate the fields from a map, the map represents the configuration of the fields
+     *
+     * @param fieldsConfiguration
+     * @return a list of fields
+     */
+    public abstract List<Field> generateLuceneFields(Map.Entry<String, T> fieldsConfiguration);
 
-    String getRawFieldName(String fieldName) {
+    /**
+     * Return the raw name of a field.
+     * Raw field for field "foo" will be "foo.raw"
+     *
+     * @param fieldName
+     * @return
+     */
+    public String getRawFieldName(String fieldName) {
         return fieldName + RAW_SUFFIX;
     }
 

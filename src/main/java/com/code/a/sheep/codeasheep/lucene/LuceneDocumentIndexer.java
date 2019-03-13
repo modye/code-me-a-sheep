@@ -1,13 +1,10 @@
 package com.code.a.sheep.codeasheep.lucene;
 
+import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.interfaces.DocumentIndexer;
 import com.code.a.sheep.codeasheep.lucene.schema.LuceneSchema;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.analysis.custom.CustomAnalyzer;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.RAMDirectory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -27,22 +24,19 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     private final IndexWriter indexWriter;
     private final LuceneSchema luceneSchema;
 
-    public LuceneDocumentIndexer(CustomAnalyzer customAnalyzer, LuceneSchema luceneSchema) throws IOException {
-        //TODO MOD
-        // TODO analyzer
-        this.indexWriter = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(customAnalyzer));
+    public LuceneDocumentIndexer(IndexWriter indexWriter, LuceneSchema luceneSchema) {
+        this.indexWriter = indexWriter;
         this.luceneSchema = luceneSchema;
     }
 
     @Override
-    public void indexDocuments(@NotNull List<com.code.a.sheep.codeasheep.domain.Document> documents) {
+    public void indexDocuments(@NotNull List<Document> documents) {
         try {
-            // TODO call mapTo
-            List<Document> luceneDocuments = mapToLuceneDocuments(documents);
-            // Index the document in Lucene
-            // TODO ?
-            // TODO TU ?
+            // TODO-03 Review and call the method mapToLuceneDocuments
+            List<org.apache.lucene.document.Document> luceneDocuments = mapToLuceneDocuments(documents);
+            // TODO-04 Use indexWriter to add the documents in to Lucene
             indexWriter.addDocuments(luceneDocuments);
+            LOGGER.info("Successfully indexed {} documents", luceneDocuments.size());
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when indexing the documents", ex);
         }
@@ -52,7 +46,6 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     public void commit() {
         // commit to make the document searchable (in real life this should be done in an asynchronous way)
         try {
-            // TODO
             indexWriter.commit();
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when flushing the documents", ex);
@@ -60,20 +53,20 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     }
 
     /**
-     * Map the documents into lucene {@link Document}.
+     * Map the documents into lucene {@link org.apache.lucene.document.Document}.
      */
-    private List<Document> mapToLuceneDocuments(List<com.code.a.sheep.codeasheep.domain.Document> documents) {
+    private List<org.apache.lucene.document.Document> mapToLuceneDocuments(List<com.code.a.sheep.codeasheep.domain.Document> documents) {
         return documents.stream().map(this::mapToLuceneDocument).collect(Collectors.toList());
     }
 
     /**
-     * Transform the map of key/value into a lucene {@link Document}
+     * Transform the map of key/value into a lucene {@link org.apache.lucene.document.Document}
      * Key is the name of the field. Value, it's value.
      *
      * @param document map of key/value
      */
-    private Document mapToLuceneDocument(com.code.a.sheep.codeasheep.domain.Document document) {
-        Document luceneDocument = new Document();
+    private org.apache.lucene.document.Document mapToLuceneDocument(com.code.a.sheep.codeasheep.domain.Document document) {
+        org.apache.lucene.document.Document luceneDocument = new org.apache.lucene.document.Document();
         document.entrySet().stream()
                 .map(luceneSchema::generateLuceneFields)
                 .flatMap(Collection::stream)
@@ -86,3 +79,4 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
         return indexWriter;
     }
 }
+

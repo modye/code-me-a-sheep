@@ -6,6 +6,7 @@ import com.code.a.sheep.codeasheep.domain.Hit;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 import com.code.a.sheep.codeasheep.interfaces.DocumentSearcher;
 import com.code.a.sheep.codeasheep.lucene.schema.LuceneSchema;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
@@ -17,7 +18,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -30,37 +30,28 @@ import java.util.stream.Stream;
 
 import static com.code.a.sheep.codeasheep.domain.DocumentFields.TEXT;
 
-
 @Component
 @Profile("lucene")
 @Slf4j
-@DependsOn("littlePrinceReader")
+@RequiredArgsConstructor
 public class LuceneDocumentSearcher implements DocumentSearcher {
+
     private final CustomAnalyzer customAnalyzer;
     private IndexSearcher indexSearcher;
-    private LuceneDocumentIndexer luceneDocumentIndexer;
     private final LuceneSchema luceneSchema;
-
-    /**
-     * Initializes component.
-     *
-     * @param customAnalyzer
-     * @param luceneDocumentIndexer
-     * @param luceneSchema
-     * @throws IOException
-     */
-    public LuceneDocumentSearcher(CustomAnalyzer customAnalyzer, LuceneDocumentIndexer luceneDocumentIndexer, LuceneSchema luceneSchema) throws IOException {
-        this.customAnalyzer = customAnalyzer;
-        this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
-        this.luceneDocumentIndexer = luceneDocumentIndexer;
-        this.luceneSchema = luceneSchema;
-    }
+    private final LuceneDocumentIndexer luceneDocumentIndexer;
 
     @Override
     public SearchResult searchDocuments(String query, List<String> facetFields) {
 
+        if (query == null || query.isEmpty()) {
+            throw new RuntimeException("A query is needed to search :)");
+        }
+
         try {
             Query luceneQuery = parseQuery(query, customAnalyzer);
+
+            // TODO-07-a Use indexSearcher to perform a search and retrieve the 10 most matching documents
             TopDocs topDocs = indexSearcher.search(luceneQuery, 10);
 
             return SearchResult.builder()
@@ -70,18 +61,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
                     .build();
 
         } catch (QueryNodeException | IOException e) {
-            throw new RuntimeException("Oooops, something went bad when searching documents :/.");
-        }
-    }
-
-    @Override
-    public void refresh() {
-        // Commit
-        luceneDocumentIndexer.commit();
-        try {
-            this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
-        } catch (IOException e) {
-            throw new RuntimeException("Oooops, something went bad when refreshing index.");
+            throw new RuntimeException("Oooops, something went bad when searching documents :/.", e);
         }
     }
 
@@ -113,6 +93,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
      * @throws QueryNodeException
      */
     private Query parseQuery(String query, Analyzer customAnalyzer) throws QueryNodeException {
+        // TODO-06 Create a StandardQueryParser and use it to parse the query
         return new StandardQueryParser(customAnalyzer).parse(query, TEXT.getName());
     }
 
@@ -137,6 +118,15 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
 
         } catch (IOException e) {
             throw new RuntimeException("Oooops, something went bad when retrieving document " + scoreDoc.doc);
+        }
+    }
+
+    @Override
+    public void initializeIndexSearcher() {
+        try {
+            this.indexSearcher = new IndexSearcher(DirectoryReader.open(luceneDocumentIndexer.getIndexWriter()));
+        } catch (IOException ex) {
+            throw new RuntimeException("Oooops, something went bad when creating index searcher", ex);
         }
     }
 }

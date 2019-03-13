@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Search for documents in the the underlying layers
+ * Main interface for search operations
  */
 public interface DocumentSearcher {
 
@@ -18,5 +18,8 @@ public interface DocumentSearcher {
      */
     SearchResult searchDocuments(@NotNull String query, List<String> facetFields);
 
-    void refresh();
+    /**
+     * Initializes the index searcher
+     */
+    void initializeIndexSearcher();
 }

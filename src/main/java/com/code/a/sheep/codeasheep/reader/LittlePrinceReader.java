@@ -1,13 +1,10 @@
 package com.code.a.sheep.codeasheep.reader;
 
 import com.code.a.sheep.codeasheep.domain.Document;
-import com.code.a.sheep.codeasheep.interfaces.DocumentIndexer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -30,26 +27,27 @@ import static com.code.a.sheep.codeasheep.domain.DocumentFields.*;
 @Component
 public class LittlePrinceReader {
 
-    @Value("classpath:le-petit-prince.txt")
-    private Resource resourceFile;
+    private Resource book;
     private String currentChapter;
 
-    public LittlePrinceReader(DocumentIndexer documentIndexer) throws IOException {
-        documentIndexer.indexDocuments(read());
-        // commit index
-        documentIndexer.commit();
+    /**
+     * Inject the book from the resources.
+     *
+     * @param book the whole little prince book in French
+     */
+    public LittlePrinceReader(@Value("classpath:le-petit-prince.txt") Resource book) {
+        this.book = book;
     }
 
     /**
      * Read the file and produces a list of document representation.
      * In real life this should be streamed in order to control memory usage
      *
-     * @return
+     * @return the list of domain {@link Document} ready to be indexed
      */
-    private List<Document> read() {
+    public List<Document> read() {
         try {
-            File resource = new ClassPathResource("le-petit-prince.txt").getFile();
-            try (Stream<String> lines = Files.lines(Paths.get(resource.getPath()), Charset.defaultCharset())) {
+            try (Stream<String> lines = Files.lines(Paths.get(book.getFile().getPath()), Charset.defaultCharset())) {
                 return lines
                         .filter(l -> !l.isEmpty())
                         .map(this::createDocumentFromLine)
@@ -68,8 +66,7 @@ public class LittlePrinceReader {
      */
     private Document createDocumentFromLine(String readLine) {
 
-
-        //TODO 1
+        //TODO-02-a Build a document from the read line and return it
         Document document = new Document();
 
         document.put(TEXT.getName(), readLine);
@@ -90,7 +87,6 @@ public class LittlePrinceReader {
         }
 
         document.put(CHAPTER.getName(), currentChapter);
-
         return document;
     }
 }

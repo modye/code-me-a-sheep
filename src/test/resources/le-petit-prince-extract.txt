@@ -1,0 +1,11 @@
+Chapitre 1
+
+Un mouton sauvage apparait !
+
+- Voulez vous lancer une MoutonBall de type classique ?
+
+- Oui !
+
+Chapitre 2
+
+Vous avez attrapé un Moucool !
