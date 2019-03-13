@@ -103,7 +103,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
      * @throws QueryNodeException
      */
     private Query parseQuery(String query, Analyzer customAnalyzer) throws QueryNodeException {
-        // TODO-06 Have a look at this parser, why do we use our customAnalyzer here ?
+        // TODO-06-a Have a look at this parser, why do we use our customAnalyzer here ?
         // Where is define the customAnalyzer ?
         return new StandardQueryParser(customAnalyzer).parse(query, TEXT.getName());
     }

@@ -15,6 +15,10 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+/**
+ * TODO-11 You can run the application and perform some request
+ * For example: http://localhost:8080/search?text=mouton&facet.field=isDialog&facet.field=isQuestion
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("lucene")

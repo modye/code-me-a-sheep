@@ -46,6 +46,7 @@ public class LuceneConfiguration {
 
     /**
      * Creates the bean that can write documents in Lucene index.
+     * // TODO-06-b Look at this bean, it's used to write on the index, we use the customAnalyzer
      *
      * @return
      */
