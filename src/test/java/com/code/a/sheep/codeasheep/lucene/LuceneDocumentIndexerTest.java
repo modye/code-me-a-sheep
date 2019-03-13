@@ -37,6 +37,19 @@ public class LuceneDocumentIndexerTest {
     public final OutputCapture outputCapture = new OutputCapture();
 
     /**
+     * TODO-04-a Execute this test it should pass
+     * TODO-04-c Execute this test, it should fail. When the test is green, remove it
+     */
+    @Test(expected = RuntimeException.class)
+    public void notYetImplemented() {
+        // Given
+        List<Document> documents = littlePrinceReader.read();
+
+        // When
+        luceneDocumentIndexer.indexDocuments(documents);
+    }
+
+    /**
      * Verifies 761 documents are indexed and are properly formed.
      * TODO-05-a Run this test it should fail
      * TODO-05-d Run this test again, it should pass

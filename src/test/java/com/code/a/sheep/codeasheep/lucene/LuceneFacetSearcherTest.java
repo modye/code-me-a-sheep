@@ -33,7 +33,7 @@ public class LuceneFacetSearcherTest {
      * Executes a full text search on the word 'mouton' and aggregate on the field chapter
      * TODO-09-a Review this test and the method expectedFacetValues, what's the meaning of the FacetValue("Chapitre 2", 11) ?
      * TODO-09-b Execute this test, it should not pass
-     * TODO-09-d Execute this test, it should pass
+     * TODO-09-e Execute this test, it should pass
      */
     @Test
     public void searchDocuments_facets() {

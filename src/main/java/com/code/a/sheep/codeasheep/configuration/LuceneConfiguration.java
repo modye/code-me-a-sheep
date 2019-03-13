@@ -71,15 +71,13 @@ public class LuceneConfiguration {
      * @return
      * @throws IOException
      */
-    // TODO check
     @Bean
     public CustomAnalyzer customAnalyzer(ResourceLoader resourceLoader) {
         try {
             return CustomAnalyzer.builder(resourceLoader)
                     .withTokenizer(StandardTokenizerFactory.class)
                     .addTokenFilter(LowerCaseFilterFactory.class)
-                    // TODO-08 Add a token filter that removes the accent/special characters etc. (ascii folding behavior)
-                    //.addTokenFilter(ASCIIFoldingFilterFactory.class)
+                    // TODO-08-a Add a token filter that removes the accent/special characters etc. (ascii folding behavior)
                     .build();
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when creating the analyzer", ex);
@@ -111,7 +109,7 @@ public class LuceneConfiguration {
                 .addField(LuceneTextField.builder()
                         .name(CHAPTER.getName())
                         .isStored(true)
-                        // TODO-09-c Add a raw field for chapter
+                        // TODO-09-d Add a raw field for chapter
                         .build())
                 // isQuestion is not stored and has a raw field
                 .addField(LuceneBooleanField.builder()
@@ -124,7 +122,7 @@ public class LuceneConfiguration {
                 // isDialog is stored and has a raw field
                 .addField(LuceneBooleanField.builder()
                         .name(IS_DIALOG.getName())
-                        .isStored(true)
+                        .isStored(false)
                         .withRawField(true)
                         .build());
     }

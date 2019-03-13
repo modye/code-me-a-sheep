@@ -14,10 +14,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
 import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -52,7 +49,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
             Query luceneQuery = parseQuery(query, customAnalyzer);
 
             // TODO-07-a Use indexSearcher to perform a search and retrieve the 10 most matching documents
-            TopDocs topDocs = indexSearcher.search(luceneQuery, 10);
+            TopDocs topDocs = null;
 
             return SearchResult.builder()
                     .nbHits(topDocs.totalHits)
@@ -75,14 +72,27 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
      */
     private List<Facet> aggregateResultOnField(List<String> facetFields, Query luceneQuery) throws IOException {
         if (!CollectionUtils.isEmpty(facetFields)) {
-            FacetCollector collector = new FacetCollector(facetFields, luceneSchema);
-            // TODO create collector
-            indexSearcher.search(luceneQuery, collector);
+            FacetCollector facetCollector = new FacetCollector(facetFields, luceneSchema);
 
-            return collector.getFacets();
+            // TODO-09-c Remove this dummyCollector and pass facetCollector to search method
+            var dummyCollector = new SimpleCollector() {
+                @Override
+                public void collect(int doc) throws IOException {
+
+                }
+
+                @Override
+                public boolean needsScores() {
+                    return false;
+                }
+            };
+            indexSearcher.search(luceneQuery, dummyCollector);
+
+            return facetCollector.getFacets();
         }
         return new ArrayList<>();
     }
+
 
     /**
      * Parse and build a lucene {@link Query}
@@ -93,7 +103,8 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
      * @throws QueryNodeException
      */
     private Query parseQuery(String query, Analyzer customAnalyzer) throws QueryNodeException {
-        // TODO-06 Create a StandardQueryParser and use it to parse the query
+        // TODO-06 Have a look at this parser, why do we use our customAnalyzer here ?
+        // Where is define the customAnalyzer ?
         return new StandardQueryParser(customAnalyzer).parse(query, TEXT.getName());
     }
 

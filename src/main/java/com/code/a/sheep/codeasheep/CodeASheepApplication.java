@@ -11,7 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.List;
 
 /**
- * This application exposes a REST API used to search on the Little Prince book.
+ * This application exposes a REST API used to search on the Little Prince book
  */
 @SpringBootApplication
 public class CodeASheepApplication {

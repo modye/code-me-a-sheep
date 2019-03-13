@@ -18,7 +18,7 @@ public class LittlePrinceReaderTest {
 
     /**
      * Verifies we read 6 lines from the extract
-     * TODO-01 Run this test, it should fail
+     * TODO-01-a Run this test, it should fail
      * TODO-02-b Run this test, it should pass
      */
     @SneakyThrows
@@ -36,6 +36,11 @@ public class LittlePrinceReaderTest {
         assertThat(documents).containsAll(expectedDocuments());
     }
 
+    /**
+     * TODO-01-b Review the document we are expecting
+     *
+     * @return
+     */
     private List<Document> expectedDocuments() {
 
         return List.of(
