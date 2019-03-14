@@ -38,7 +38,7 @@ public class LuceneDocumentIndexerTest {
 
     /**
      * TODO-04-a Execute this test it should pass
-     * TODO-04-c Execute this test, it should fail. When the test is green, remove it
+     * TODO-04-c Execute this test, it should fail. When the test is red, remove it
      */
     @Test(expected = RuntimeException.class)
     public void notYetImplemented() {

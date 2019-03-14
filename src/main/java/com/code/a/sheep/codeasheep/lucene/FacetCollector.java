@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 /**
  * This collector is used to retrieve all document values for faceting purposes.
- * TODO-10 Have a look at this class, aggregate it not easy, even when using Lucene
+ * TODO-10 Have a look at this class, aggregate is not easy, even when using Lucene
  */
 class FacetCollector extends SimpleCollector {
     private final Map<String, DocIdSetIterator> docIdSetIteratorMap;
