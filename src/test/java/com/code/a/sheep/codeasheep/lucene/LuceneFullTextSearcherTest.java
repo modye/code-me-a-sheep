@@ -3,7 +3,6 @@ package com.code.a.sheep.codeasheep.lucene;
 import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 import com.code.a.sheep.codeasheep.reader.LittlePrinceReader;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ public class LuceneFullTextSearcherTest {
      * // TODO-08-b Execute this test it should pass
      */
     @Test
-    @Ignore
     public void searchDocuments_fullText() {
 
         // Given

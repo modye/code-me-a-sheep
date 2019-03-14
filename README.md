@@ -374,7 +374,7 @@ if (this.isWithRawField()) {
 
 Those lines are performing the **magic** !
 
-If a field has the property *withRawField* set to true, it has another field indexed in a structured named **DocV
+If a field has the property *withRawField* set to true, it has another field indexed in a structured named **DocValues**.
 
 ###### TODO-09-e Execute this test, it should pass
 

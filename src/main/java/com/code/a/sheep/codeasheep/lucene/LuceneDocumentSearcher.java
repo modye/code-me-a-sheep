@@ -14,7 +14,10 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
 import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -49,7 +52,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
             Query luceneQuery = parseQuery(query, customAnalyzer);
 
             // TODO-07-a Use indexSearcher to perform a search and retrieve the 10 most matching documents
-            TopDocs topDocs = null;
+            TopDocs topDocs = indexSearcher.search(luceneQuery, 10);
 
             return SearchResult.builder()
                     .nbHits(topDocs.totalHits)
@@ -75,18 +78,7 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
             FacetCollector facetCollector = new FacetCollector(facetFields, luceneSchema);
 
             // TODO-09-c Remove this dummyCollector and pass facetCollector to search method
-            var dummyCollector = new SimpleCollector() {
-                @Override
-                public void collect(int doc) throws IOException {
-
-                }
-
-                @Override
-                public boolean needsScores() {
-                    return false;
-                }
-            };
-            indexSearcher.search(luceneQuery, dummyCollector);
+            indexSearcher.search(luceneQuery, facetCollector);
 
             return facetCollector.getFacets();
         }

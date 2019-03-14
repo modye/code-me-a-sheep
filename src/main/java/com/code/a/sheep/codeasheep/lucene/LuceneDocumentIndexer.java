@@ -33,11 +33,9 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     public void indexDocuments(@NotNull List<Document> documents) {
         try {
             // TODO-03 Review and call the method mapToLuceneDocuments
-            List<org.apache.lucene.document.Document> luceneDocuments = null;
+            List<org.apache.lucene.document.Document> luceneDocuments = mapToLuceneDocuments(documents);
             // TODO-04-b Remove the dummy if bloc and replace it by a call to indexWriter to add the documents in Lucene
-            if (true) {
-                throw new IOException("This feature is not yet implemented ! Go and check the TODOs :p");
-            }
+            indexWriter.addDocuments(luceneDocuments);
             LOGGER.info("Successfully indexed {} documents", luceneDocuments.size());
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when indexing the documents", ex);

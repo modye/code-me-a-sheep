@@ -79,6 +79,7 @@ public class LuceneConfiguration {
                     .withTokenizer(StandardTokenizerFactory.class)
                     .addTokenFilter(LowerCaseFilterFactory.class)
                     // TODO-08-a Add a token filter that removes the accent/special characters etc. (ascii folding behavior)
+                    .addTokenFilter(ASCIIFoldingFilterFactory.class)
                     .build();
         } catch (IOException ex) {
             throw new RuntimeException("Oooops, something went bad when creating the analyzer", ex);
@@ -111,6 +112,7 @@ public class LuceneConfiguration {
                         .name(CHAPTER.getName())
                         .isStored(true)
                         // TODO-09-d Add a raw field for chapter
+                        .withRawField(true)
                         .build())
                 // isQuestion is not stored and has a raw field
                 .addField(LuceneBooleanField.builder()
@@ -123,7 +125,7 @@ public class LuceneConfiguration {
                 // isDialog is stored and has a raw field
                 .addField(LuceneBooleanField.builder()
                         .name(IS_DIALOG.getName())
-                        .isStored(false)
+                        .isStored(true)
                         .withRawField(true)
                         .build());
     }

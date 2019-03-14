@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.code.a.sheep.codeasheep.domain.DocumentFields.CHAPTER;
+import static com.code.a.sheep.codeasheep.domain.DocumentFields.*;
 
 /**
  * Component used to read the Little Prince book and to produce from each line a well formed {@link Document} having several properties:
@@ -70,6 +70,7 @@ public class LittlePrinceReader {
         Document document = new Document();
 
         // TODO-02-a.1 manage text field
+        document.put(TEXT.getName(), readLine);
 
         // If we are on a chapter line
         if (readLine.startsWith("Chapitre")) {
@@ -79,10 +80,12 @@ public class LittlePrinceReader {
             // TODO-02-a.2 Dialog mark
             if (readLine.startsWith("-")) {
                 // manage isDialog field
+                document.put(IS_DIALOG.getName(), true);
             }
             // Question mark
             if (readLine.endsWith("?")) {
                 // TODO-02-a.3 manage isQuestion field
+                document.put(IS_QUESTION.getName(), true);
             }
         }
 
