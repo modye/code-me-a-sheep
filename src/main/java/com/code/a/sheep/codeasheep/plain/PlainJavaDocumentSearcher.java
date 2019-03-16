@@ -21,9 +21,8 @@ public class PlainJavaDocumentSearcher implements DocumentSearcher {
     @Override
     public SearchResult searchDocuments(@NotNull String query, List<String> facetFields) {
 
-        //throw new IllegalStateException("Not yet implemented");
+        throw new IllegalStateException("Not yet implemented");
         // TODO-06-b Remove the exception, call the index to perform a search operations, returns only the 10 most relevant documents
-        return index.search(query, facetFields, 10);
     }
 
     @Override

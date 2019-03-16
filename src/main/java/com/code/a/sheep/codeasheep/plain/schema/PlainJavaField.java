@@ -2,12 +2,10 @@ package com.code.a.sheep.codeasheep.plain.schema;
 
 import com.code.a.sheep.codeasheep.plain.index.PlainJavaFieldIndex;
 import com.code.a.sheep.codeasheep.plain.index.PlainJavaPostingList;
-import com.code.a.sheep.codeasheep.plain.index.TextAnalysis;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 public class PlainJavaField {
@@ -35,7 +33,7 @@ public class PlainJavaField {
     public void indexFieldContent(int documentId, String content) {
         // Call analysis and add tokens to the inverted index
         //TODO-03-c Add the tokens in the field index for this content
-        fieldIndex.addToken(documentId, TextAnalysis.defaultAndLowerCaseAnalysis(content), content);
+
     }
 
     /**
@@ -46,11 +44,7 @@ public class PlainJavaField {
      */
     public List<PlainJavaPostingList.PostingIterator> searchDocuments(String query) {
         // TODO-06-c Replace this empty List.of() with: Analyze the incoming query and search documents
-        return TextAnalysis.defaultAnalysis(query)
-                .stream()
-                .map(fieldIndex::searchDocument)
-                .collect(Collectors.toList());
-        //return List.of();
+        return List.of();
     }
 
     /**

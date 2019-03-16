@@ -25,7 +25,7 @@ public class PlainJavaDocumentIndexer implements DocumentIndexer {
     public void indexDocuments(@NotNull List<Document> documents) {
 
         // TODO-01-c Add documents into index
-        index.addDocuments(documents);
+
         LOGGER.info("Successfully indexed {} documents", documents.size());
     }
 

@@ -19,7 +19,6 @@ import static com.code.a.sheep.codeasheep.domain.DocumentFields.TEXT;
  * <p>
  * It is a document container with searching structures.
  * <p>
- * TODO: Add synchronization between document addition and flush operation.
  */
 @Component
 @RequiredArgsConstructor
@@ -51,7 +50,7 @@ public class PlainJavaIndex {
         if (bufferedDocuments != null) {
             bufferedDocuments.forEach(document -> {
                 // TODO-03-a Call a method to create search structures
-                createSearchStructuresForDocument(document);
+
             });
         }
 
@@ -89,7 +88,6 @@ public class PlainJavaIndex {
 
         List<Integer> matchingDocumentIds = resultCollector.collectDocsAndComputeScores(builder, postingLists, size);
         // TODO-08-b Collect the facets and add them to the builder
-        builder.facets(resultCollector.collectFacets(matchingDocumentIds, facetFields));
 
         return builder.build();
     }

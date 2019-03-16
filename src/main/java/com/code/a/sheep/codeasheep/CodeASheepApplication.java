@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * This application exposes a REST API used to search on the Little Prince book
- * TODO-10 You can run the app and play for the API as you did in first lab
+ * TODO-09 You can run the app and play for the API as you did in first lab
  * For example: http://localhost:8080/search?text=mouton%20caisse&facet.field=isDialog&facet.field=chapter
  */
 @SpringBootApplication

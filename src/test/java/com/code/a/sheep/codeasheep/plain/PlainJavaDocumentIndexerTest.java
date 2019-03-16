@@ -52,7 +52,7 @@ public class PlainJavaDocumentIndexerTest {
 
     /**
      * Verifies 761 documents are indexed and are properly formed.
-     * // TODO-02-a Review this test, run it, it should fail. Why ?
+     * TODO-02-a Review this test, run it, it should fail. Why ?
      */
     @Test
     public void indexDocumentsAndCheckDocumentAreComplete() {
