@@ -38,7 +38,7 @@ For example for IntelliJ: **View > ToolWindows > TODO**
 The purpose of this lab is to use Lucene to index the Little Prince book and execute request on it.
 
 We want to execute two kinds of request:
-* *full text*: for example retrieve all lines of the book having the word 'mouton'
+* *full text*: for example retrieve all lines of the book having the word "mouton"
 * *facets*: classify the result of a request, for example, for all the lines having the word 'mouton', we want to know how many lines were on first chapter, on second chapter etc.
 
 Here is an extract of the book we will index, it's in French:
@@ -64,18 +64,18 @@ je regardai donc cette apparition avec des yeux tout ronds d'étonnement. N'oubl
 You have different kind of lines:
 * Start of a chapter
 * Normal line
-* Questions
+* Question
 * Dialog
 
-In our application, every line of the book are represented as a document. Here an example of a document in JSON format:
-````json
+In our application, each line of the book is represented as a document. Here an example of a document in JSON format:
+```json
 {
   "chapter": "Chapitre 7",
   "text": "- Un mouton mange tout ce qu'il rencontre.",
   "isDialog": true,
   "isQuestion": false
 }
-````
+```
 
 **Okay, we can start !**
 
@@ -86,14 +86,14 @@ In every search application, the first step is to retrieve the data. In our case
 The first step is to read the book and to map it as domain objects.
 ###### TODO-01-a Run this test, it should fail
 The test fails because the lines are read but not correctly mapped to a document like this one :
-````json
+```json
 {
   "chapter": "Chapitre 7",
   "text": "- Un mouton mange tout ce qu'il rencontre.",
   "isDialog": true,
   "isQuestion": false
 }
-````
+```
 
 ###### TODO-01-b Review the document we are expecting
 The method *expectedDocuments* defines 6 documents, each document is the line representation of the book.
@@ -128,12 +128,12 @@ If the line ends with a question mark "?", set its property *isQuestion* to true
 Run the test again, it should be a success ! We correctly created our documents from the book file.
 
 ##### TODO-03 Review and call the method mapToLuceneDocuments
-At this moment, we have read the book and produce from each line a **Document**, the next step is to map those Document to a format known by Lucene.
+At this moment, we have read the book and produce from each line a **Document**, the next step is to map those documents into a format known by Lucene.
 Once the documents have a format known by Lucene, we can index them !
 
 ##### TODO-04 Index documents in Lucene
 ###### TODO-04-a Execute this test it should pass
-This test fails because we did not implement yet the call to index the documents in Lucene
+This test fails because we did not implement the call to index the documents in Lucene yet.
 ###### TODO-04-b Remove the dummy if bloc and replace it by a call to indexWriter to add the documents in Lucene
 In this step, you need to clean a dummy bloc that was present only to make the app compiling :D
 
@@ -146,8 +146,8 @@ if (true) {
 
 *The first exception we had while running the app was thrown here !*
 
-###### TODO-04-c Execute this test, it should fail. When the test is green, remove it
-Remove this test when it's green
+###### TODO-04-c Execute this test, it should fail. When the test is red, remove it
+Remove this test when it's red
 
 At this stage, we are able to write documents in the Lucene index ! \o/
 
@@ -155,11 +155,11 @@ At this stage, we are able to write documents in the Lucene index ! \o/
 Obviously, we want to test that the documents we indexed are correct.
 
 ###### TODO-05-a Run this test it should fail
-We can easily see while running this test that we did some mistake. Let's have a look at the test.
+We can easily see while running this test that we did some mistakes. Let's have a look at the test.
 
-We are expecting the first document matching the word 'mouton' is :
+We are expecting the first document matching the word "mouton" is :
 **Warning**, this is a representation of a Lucene document.
-```
+```json
 {
   "chapter": "Chapitre 26",
   "text": "- J'ai ton mouton. Et j'ai la caisse pour le mouton. Et j'ai la muselière...",
@@ -172,11 +172,11 @@ The error message of the test tells us that the *isDialog* field is not properly
 
 ###### TODO-05-b Review the schema and be sure you understand every configuration
 
-The schema is the heart of the solution, it will be define for each field it's behavior in the index.
+The schema is the heart of the solution. For each field, it will define its behavior in the index.
 
 In our implementation we offer several options:
-* every field is searchable.
-* fields having raw field can be use to perform facets/aggregations
+* each field is searchable.
+* fields having raw field can be used to perform facets/aggregations
 * fields stored can be retrieved
 
 While doing this:
@@ -189,7 +189,7 @@ While doing this:
 
 we are telling to our system that the field TEXT is searchable and can be retrieved by a search.
 
-###### TODO-05-c Update the Lucene schema by modifiying the isStored property for IS_DIALOG field
+###### TODO-05-c Update the Lucene schema by modifying the isStored property for IS_DIALOG field
 In our test, the message shows an error for the field *IS_DIALOG*.
 
 ```java
@@ -205,23 +205,23 @@ In this configuration, the field is not stored that means its value cannot be re
 The test is now ok, as said in javadoc: 
 
 ```
-You can see Lucene retrieves boolean field as "O/1", that's why a mapping phase is needed : {@link com.code.a.sheep.codeasheep.lucene.schema.LuceneBooleanField#getValue(IndexableField)}
+You can see Lucene retrieves boolean field as "O/1", that's why a mapping phase is needed: {@link com.code.a.sheep.codeasheep.lucene.schema.LuceneBooleanField#getValue(IndexableField)}
 ```
 
 Our documents are correctly indexed in Lucene ! Well done \o/
 That's definitely cool, but now we may want to search on those lines.
 
 
-##### TODO-06 Let's search some mouton !
+##### TODO-06 Let's search some _moutons_ !
 ###### TODO-06-a Have a look at this parser, why do we use our customAnalyzer here ?
 In this step we are in the component responsible of the search.
-The *customAnalyzer* object is a Spring component defined in the class *LuceneConfiguration*. Is role is to provide text analysis.
+The *customAnalyzer* object is a Spring component defined in the class *LuceneConfiguration*. Its role is to provide text analysis.
 
 In the line:
-```
+```java
 return new StandardQueryParser(customAnalyzer).parse(query, TEXT.getName());
 ```
-we create a query using this analyzer, that means the query will be parse and may be modified before searching on it ?
+we create a query using this analyzer, does that mean the query will be parsed and may be modified before searching on it ?
 
 Definitely yes ! When i'm searching for "MOUton" i want to search the lines having the token "mouton". The case doesn't have a strong meaning.
 
@@ -231,15 +231,15 @@ We lied :D
 
 ###### TODO-06-b Look at this bean, it's used to write on the index, we use the customAnalyzer
 
-In the configuration (*LuceneConfiguration*), we defined a bean responsible to write on Lucene. This bean is aware of our *CustomAnalyzer* and then applies text analysis also while indexing.
-In the inverted index, we won't have token 'MOUton' but the token 'mouton' : this is lowercase token filter.
+In the configuration (*LuceneConfiguration*), we defined a bean responsible for writing on Lucene. This bean is aware of our *CustomAnalyzer* and then applies text analysis also while indexing.
+In the inverted index, we won't have token "MOUton" but the token "mouton": this is due to the lowercase token filter.
 
 **The most useful phase of the text analysis is the tokenizer**: how do we split the tokens.
 
-The line "Hey there, how is the lab ?" will be splitted and produce several tokens > "hey", "there" etc..
+The line "Hey there, how is the lab ?" will be split and produce several tokens > "hey", "there" etc..
 
 Check the bean creation:
-````java
+```java
 /**
  * Creates the bean that can write documents in Lucene index.
  * @return
@@ -248,16 +248,16 @@ Check the bean creation:
 public IndexWriter indexWriter() {
     return new IndexWriter(directory(), new IndexWriterConfig(customAnalyzer(resourceLoader())));
 }
-````
+```
 
 ###### TODO-07-a Use indexSearcher to perform a search and retrieve the 10 most matching documents
 Perform the search in Lucene.
 The query is parsed:
-```
+```java
 Query luceneQuery = parseQuery(query, customAnalyzer);
 ```
 and then the results are parsed and map to a *SearchResult* object:
-```
+```java
 SearchResult.builder()
     .nbHits(topDocs.totalHits)
     .hits(Stream.of(topDocs.scoreDocs).map(this::docToHit).collect(Collectors.toList()))
@@ -268,7 +268,7 @@ SearchResult.builder()
 ###### TODO-07-b Remove @Ignore and execute this test it should not pass
 The test fails :(
 Let's see what token we are looking for:
-```
+```java
 luceneDocumentSearcher.searchDocuments("moUtôn", List.of());
 ```
 We are looking for the token **moUtôn**.
@@ -277,7 +277,7 @@ It might be a text analysis issue, that "ô" seems suspect.
 
 ##### TODO-08 Custom analyzer
 Let's have a look at our analyzer:
-```
+```java
 @Bean
 public CustomAnalyzer customAnalyzer(ResourceLoader resourceLoader) {
     return CustomAnalyzer.builder(resourceLoader)
@@ -302,22 +302,22 @@ This token filter is *ASCIIFoldingFilterFactory*
 The test is now green !
 
 Something is important in this test, let's have a look to those lines:
-``` 
+```java 
 assertThat(searchResult.getNbHits()).isEqualTo(29);
 assertThat(searchResult.getHits().size()).isEqualTo(10);
 ```
 
-There are 29 lines having the word mouton, but only 10 are retrieved.
-Only the 10 more relevant are retrieved. It's a common use case in the search world, do you usually go to Google's results second page ? :p
+There are 29 lines having the word "mouton", but only 10 are retrieved.
+Only the 10 more relevant are retrieved. It's a common use case in the search world, do you usually check the Google's results second page ? :p
 
 ###### Faceting
 
-Faceting is a nice functionality to have on a search engine: classify the result of a request, for example, for all the lines having the word 'mouton', we want to know how many lines were on first chapter, on second chapter etc.
-They are mainly use to produce some statistics on the documents, on search results 
+Faceting is a nice functionality to have on a search engine: classify the result of a request, for example, for all the lines having the word "mouton", we want to know how many lines were on first chapter, on second chapter etc.
+They are mainly used to produce some statistics on documents, on search results. 
 
 ####### TODO-09-a Review this test and the method expectedFacetValues, what's the meaning of the FacetValue("Chapitre 2", 11) ?
 
-This object means that there are 11 eleven lines having the word mouton in the chapter "Chapitre 2"
+This object means that there are 11 lines having the word "mouton" in the chapter "Chapitre 2"
 
 ###### TODO-09-b Execute this test, it should not pass
 The test is not ok. Why ?
@@ -326,20 +326,20 @@ First, what's the request ?
 ```java
 luceneDocumentSearcher.searchDocuments("mouton", List.of("chapter"));
 ```
-We are searching on token "mouton" and we want to perforl faceting on field "chapter".
+We are searching on token "mouton" and we want to perform faceting on field "chapter".
 
-Before looking at the test, let's think about what we are doing. We want to know for every document matching the request on which chapter he is, and then collect all information, and then produce the aggregated result.
+Before looking at the test, let's think about what we are doing. We want to know for each document matching the request on which chapter he is, and then collect all information, and, finaly produce the aggregated result.
 
 **Here we have two problems**
-* In our inverted index, "Chapitre 2" line was not indexed as "Chapitre 2" but with tokens ("chapitre, ...")
-* Is the inverted index a good structure to know for every document, all it's tokens ? **Not at all**. that's why it's called an inverted index, it's not an index ! 
+* In our inverted index, the "Chapitre 2" line was not indexed as "Chapitre 2" but with tokens ("chapitre, ...")
+* Is the inverted index a good structure to know for each document, all its tokens ? **Not at all**. that's why it's called an inverted index, it's not an index ! 
 
 > We might need another structure that looks like an index with original value of the field: "Chapitre 2"
 
 ###### TODO-09-c Remove this dummyCollector and pass facetCollector to search method
 
 First of all, let's update our search. We add a dummy collector that you can remove:
-```
+```java
 var dummyCollector = new SimpleCollector() {
     @Override
     public void collect(int doc) throws IOException {
@@ -353,11 +353,11 @@ var dummyCollector = new SimpleCollector() {
 };
 ```
 Replace it by the **facetCollector** defined above:
-```
+```java
 FacetCollector facetCollector = new FacetCollector(facetFields, luceneSchema);
 ```
 
-This collector will produces the facets.
+This collector will produce the facets.
 
 ###### TODO-09-d Add a raw field for chapter
 
@@ -366,7 +366,7 @@ Just by adding this configuration, everything will be taken in account for you.
 
 To understand what's going on, let's go to the the class *LuceneTextField*
 
-```
+```java
 if (this.isWithRawField()) {
     luceneFields.add(new SortedDocValuesField(getRawFieldName(field.getKey()), new BytesRef(field.getValue())));
 }
