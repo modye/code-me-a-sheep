@@ -50,8 +50,6 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
 
         try {
             Query luceneQuery = parseQuery(query, customAnalyzer);
-
-            // TODO-07-a Use indexSearcher to perform a search and retrieve the 10 most matching documents
             TopDocs topDocs = indexSearcher.search(luceneQuery, 10);
 
             return SearchResult.builder()
@@ -77,7 +75,6 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
         if (!CollectionUtils.isEmpty(facetFields)) {
             FacetCollector facetCollector = new FacetCollector(facetFields, luceneSchema);
 
-            // TODO-09-c Remove this dummyCollector and pass facetCollector to search method
             indexSearcher.search(luceneQuery, facetCollector);
 
             return facetCollector.getFacets();
@@ -95,8 +92,6 @@ public class LuceneDocumentSearcher implements DocumentSearcher {
      * @throws QueryNodeException
      */
     private Query parseQuery(String query, Analyzer customAnalyzer) throws QueryNodeException {
-        // TODO-06-a Have a look at this parser, why do we use our customAnalyzer here ?
-        // Where is define the customAnalyzer ?
         return new StandardQueryParser(customAnalyzer).parse(query, TEXT.getName());
     }
 

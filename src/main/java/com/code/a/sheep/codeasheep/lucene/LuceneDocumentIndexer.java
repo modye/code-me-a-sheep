@@ -32,9 +32,7 @@ public class LuceneDocumentIndexer implements DocumentIndexer {
     @Override
     public void indexDocuments(@NotNull List<Document> documents) {
         try {
-            // TODO-03 Review and call the method mapToLuceneDocuments
             List<org.apache.lucene.document.Document> luceneDocuments = mapToLuceneDocuments(documents);
-            // TODO-04-b Remove the dummy if bloc and replace it by a call to indexWriter to add the documents in Lucene
             indexWriter.addDocuments(luceneDocuments);
             LOGGER.info("Successfully indexed {} documents", luceneDocuments.size());
         } catch (IOException ex) {

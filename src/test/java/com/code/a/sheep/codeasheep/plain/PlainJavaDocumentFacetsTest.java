@@ -1,13 +1,15 @@
-package com.code.a.sheep.codeasheep.lucene;
+package com.code.a.sheep.codeasheep.plain;
 
 import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.domain.FacetValue;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 import com.code.a.sheep.codeasheep.reader.LittlePrinceReader;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -17,38 +19,45 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles("lucene")
-public class LuceneFacetSearcherTest {
+@ActiveProfiles("plain-java")
+public class PlainJavaDocumentFacetsTest {
 
     @Autowired
     private LittlePrinceReader littlePrinceReader;
 
     @Autowired
-    private LuceneDocumentIndexer luceneDocumentIndexer;
+    private PlainJavaDocumentIndexer plainJavaDocumentIndexer;
 
     @Autowired
-    private LuceneDocumentSearcher luceneDocumentSearcher;
+    private PlainJavaDocumentSearcher plainJavaDocumentSearcher;
+
+    @Rule
+    public final OutputCapture outputCapture = new OutputCapture();
 
     /**
      * Executes a full text search on the word 'mouton' and aggregate on the field chapter
+     * This is the same test as the first lab with Lucene :)
+     * TODO-08-a Run this test, it will fail
+     * TODO-08-d Run this test, it should pass
+     * TODO-08-g Run this test, it will fail
      */
     @Test
     public void searchDocuments_facets() {
 
         // Given
         List<Document> documents = littlePrinceReader.read();
-        luceneDocumentIndexer.indexDocuments(documents);
-        luceneDocumentIndexer.commit();
-        luceneDocumentSearcher.initializeIndexSearcher();
+        plainJavaDocumentIndexer.indexDocuments(documents);
+        plainJavaDocumentIndexer.commit();
 
         // When
-        SearchResult searchResult = luceneDocumentSearcher.searchDocuments("mouton", List.of("chapter"));
+        SearchResult searchResult = plainJavaDocumentSearcher.searchDocuments("mouton", List.of("chapter"));
 
         // Then
         assertThat(searchResult).isNotNull();
         assertThat(searchResult.getNbHits()).isEqualTo(29);
         assertThat(searchResult.getHits().size()).isEqualTo(10);
 
+        assertThat(searchResult.getFacets()).isNotNull();
         assertThat(searchResult.getFacets().size()).isEqualTo(1);
         assertThat(searchResult.getFacets().get(0).getField()).isEqualTo("chapter");
         assertThat(searchResult.getFacets().get(0).getValues()).isEqualTo(expectedFacetValues());
@@ -65,4 +74,5 @@ public class LuceneFacetSearcherTest {
                 new FacetValue("Chapitre 25", 1)
         );
     }
+
 }

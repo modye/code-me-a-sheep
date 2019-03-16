@@ -46,7 +46,6 @@ public class LuceneConfiguration {
 
     /**
      * Creates the bean that can write documents in Lucene index.
-     * // TODO-06-b Look at this bean, it's used to write on the index, we use the customAnalyzer
      *
      * @return
      */
@@ -78,7 +77,6 @@ public class LuceneConfiguration {
             return CustomAnalyzer.builder(resourceLoader)
                     .withTokenizer(StandardTokenizerFactory.class)
                     .addTokenFilter(LowerCaseFilterFactory.class)
-                    // TODO-08-a Add a token filter that removes the accent/special characters etc. (ascii folding behavior)
                     .addTokenFilter(ASCIIFoldingFilterFactory.class)
                     .build();
         } catch (IOException ex) {
@@ -99,7 +97,6 @@ public class LuceneConfiguration {
      * @return
      */
     @Bean
-    // TODO-05-b Review the schema and be sure you understand every configuration
     public LuceneSchema createLuceneSchema() {
         return new LuceneSchema()
                 // Text is stored
@@ -111,7 +108,6 @@ public class LuceneConfiguration {
                 .addField(LuceneTextField.builder()
                         .name(CHAPTER.getName())
                         .isStored(true)
-                        // TODO-09-d Add a raw field for chapter
                         .withRawField(true)
                         .build())
                 // isQuestion is not stored and has a raw field
@@ -120,7 +116,6 @@ public class LuceneConfiguration {
                         .isStored(false)
                         .withRawField(true)
                         .build())
-                // TODO-05-c Update the Lucene schema by modifiying the isStored property for IS_DIALOG field
                 // If the field is not stored, it can be searched but can't be retrieved in the result
                 // isDialog is stored and has a raw field
                 .addField(LuceneBooleanField.builder()

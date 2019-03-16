@@ -65,26 +65,19 @@ public class LittlePrinceReader {
      * @return the converted line as a Map<String, Object>
      */
     private Document createDocumentFromLine(String readLine) {
-
-        //TODO-02-a Build a document from the read line and return it
         Document document = new Document();
-
-        // TODO-02-a.1 manage text field
         document.put(TEXT.getName(), readLine);
 
         // If we are on a chapter line
         if (readLine.startsWith("Chapitre")) {
             currentChapter = readLine;
         } else {
-
-            // TODO-02-a.2 Dialog mark
             if (readLine.startsWith("-")) {
                 // manage isDialog field
                 document.put(IS_DIALOG.getName(), true);
             }
             // Question mark
             if (readLine.endsWith("?")) {
-                // TODO-02-a.3 manage isQuestion field
                 document.put(IS_QUESTION.getName(), true);
             }
         }

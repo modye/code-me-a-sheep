@@ -38,8 +38,6 @@ public class LuceneDocumentIndexerTest {
 
     /**
      * Verifies 761 documents are indexed and are properly formed.
-     * TODO-05-a Run this test it should fail
-     * TODO-05-d Run this test again, it should pass
      * You can see Lucene retrieves boolean field as "O/1", that's why a mapping phase is needed : {@link com.code.a.sheep.codeasheep.lucene.schema.LuceneBooleanField#getValue(IndexableField)}
      */
     @Test

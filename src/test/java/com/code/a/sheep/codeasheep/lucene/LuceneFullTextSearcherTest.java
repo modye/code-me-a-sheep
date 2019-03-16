@@ -31,10 +31,6 @@ public class LuceneFullTextSearcherTest {
     /**
      * Executes a full text search on the word 'moUtôn' and verifies it's result
      * <p>
-     * // TODO-07-b Remove @Ignore and execute this test it should not pass
-     * // What's wrong here ?
-     * // Go ahead to step 08-a
-     * // TODO-08-b Execute this test it should pass
      */
     @Test
     public void searchDocuments_fullText() {
