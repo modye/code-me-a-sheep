@@ -84,6 +84,7 @@ public class PlainJavaDocumentSearcherTest {
         assertThat(firstDocumentMatchingMouton.get("isQuestion")).isNull();
 
         //TODO-07-d Add an assertion on the score value
+        assertThat(hits.get(0).getScore()).isEqualTo(3.902076622189789);
     }
 
 

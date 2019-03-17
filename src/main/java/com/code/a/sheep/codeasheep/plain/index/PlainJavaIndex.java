@@ -49,8 +49,8 @@ public class PlainJavaIndex {
         Collection<PlainJavaDocument> bufferedDocuments = documentStore.getBufferedDocuments();
         if (bufferedDocuments != null) {
             bufferedDocuments.forEach(document -> {
-                // TODO-03-a Call a method to create search structures
-
+                // TODO-03-a Call a method to create searching structures
+                createSearchStructuresForDocument(document);
             });
         }
 
@@ -88,6 +88,7 @@ public class PlainJavaIndex {
 
         List<Integer> matchingDocumentIds = resultCollector.collectDocsAndComputeScores(builder, postingLists, size);
         // TODO-08-b Collect the facets and add them to the builder
+        builder.facets(resultCollector.collectFacets(matchingDocumentIds, facetFields));
 
         return builder.build();
     }

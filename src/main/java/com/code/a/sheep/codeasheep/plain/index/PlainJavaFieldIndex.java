@@ -36,10 +36,11 @@ public class PlainJavaFieldIndex {
     public void addToken(int documentId, List<String> tokens, Object value) {
         // Use inverted index for fulltext search purposes
         // TODO-03-d For each token, add it to posting list
+        tokens.forEach(token -> addTokenToPostingList(documentId, token));
 
         if (withColumnarStorage) {
             //TODO-05-b Update columnar storage for this document and this value
-
+            columnarStorage[documentId] = value;
         }
 
         incrementsTokenCountForDocument(documentId, tokens.size());

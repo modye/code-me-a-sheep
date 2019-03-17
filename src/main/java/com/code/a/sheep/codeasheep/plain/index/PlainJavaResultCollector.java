@@ -164,7 +164,7 @@ public class PlainJavaResultCollector {
      */
     private double computeScore(PlainJavaPostingList.PostingIterator postingList, int documentId, long termFrequency) {
         //TODO-07-b Replace this 1 by a call to our tfIdf method
-        return 1d;
+        return tfIdf(postingList, documentId, termFrequency);
     }
 
     /**

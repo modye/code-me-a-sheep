@@ -22,4 +22,10 @@ public class TextAnalysis {
     }
 
     // TODO-04-b Create a new analysis method that applies lowercase filtering logic to produced tokens
+    public static List<String> lowercasedAnalysis(String content) {
+        return Arrays.asList(StringUtils.stripAccents(content)
+                .toLowerCase()
+                .split("[^a-zA-Z0-9]"));
+    }
+
 }
