@@ -390,3 +390,275 @@ Faceting implementation is not a feature provided by Lucene out of the box. You 
 For example: http://localhost:8080/search?text=mouton&facet.field=isDialog&facet.field=isQuestion
 
 This is the end of the first lab, you can run the application and perform some searches using the web API :)
+
+## LAB 2 : Plain Java LAB
+
+The purpose of this lab is to use plain java code to index the Little Prince book and execute request on it.
+
+We want to execute two kinds of request:
+* *full text*: for example retrieve all lines of the book having the word "mouton"
+* *facets*: classify the result of a request, for example, for all the lines having the word "mouton", we want to know how many lines were on first chapter, on second chapter etc.
+
+Here is an extract of the book we will index, it's in French:
+
+```
+Chapitre 2
+
+J'ai ainsi vécu seul, sans personne avec qui parler 'véritablement, jusqu'à une panne dans le désert du Sahara, il y a six ans. Quelque chose s'était cassée dans mon moteur. Et comme je n'avais avec moi ni mécanicien, ni passagers, je me préparai à essayer de réussir, tout seul, une réparation difficile. C'était pour moi une question de vie ou de mort. J'avais à peine de l'eau à boire pour huit jours,
+
+Le premier soir je me suis donc endormi sur le sable à mille milles de toute terre habitée. J'étais bien plus isolé qu'un naufragé sur un radeau au milieu de l'Océan. Alors vous imaginez ma surprise, au lever du jour, quand une drôle de petite voix m'a réveillé. Elle disait :
+
+- S'il vous plaît... dessine-moi un mouton !
+
+- Dessine-moi un mouton...
+
+J'ai sauté sur mes pieds comme si j'avais été frappé par la foudre. J'ai bien frotté mes yeux. J'ai bien regardé. Et j'ai vu un petit bonhomme tout à fait extraordinaire qui me considérait gravement. Voilà le meilleur portrait que, plus tard, j'ai réussi à faire de lui. Mais mon dessin, bien sûr, est beaucoup moins ravissant que le modèle. Ce n'est pas ma faute. J'avais été découragé dans ma carrière de peintre par les grandes personnes, à l'âge de six ans, et je n'avais rien appris à dessiner, sauf les boas fermés et les boas ouverts.
+
+je regardai donc cette apparition avec des yeux tout ronds d'étonnement. N'oubliez pas que je me trouvais à mille milles de toute région habitée. Or mon petit bonhomme ne me semblait ni égaré, ni mort de fatigue, ni mort de faim, ni mort de soif, ni mort de peur. Il n'avait en rien l'apparence d'un enfant perdu au milieu du désert, à mille milles de toute région habitée. Quand je réussis enfin à parler, je lui dis :
+
+- Mais... qu'est-ce que tu fais là ?
+```
+
+You have different kind of lines:
+* Start of a chapter
+* Normal line
+* Question
+* Dialog
+
+In our application, each line of the book is represented as a document. Here an example of a document in JSON format:
+```json
+{
+  "chapter": "Chapitre 7",
+  "text": "- Un mouton mange tout ce qu'il rencontre.",
+  "isDialog": true,
+  "isQuestion": false
+}
+```
+
+In every search application, the first step is to retrieve the data. In our case, our data is the content of the Little Prince book.
+The first step is to read the book and to map it as domain objects.
+
+Everything was done during the first lab so reading the book and generating documents should already work.
+
+**Okay, we can start !**
+
+If you feel confident, go to your IDE and follow the TODOs.
+
+##### TODO-01 Add document to the index
+
+###### TODO-01-a Look at this @Profile annotation, we will use Spring to switch between Lucene and Plain Java implementation
+
+As said before this application is a Spring Boot application.
+We will use its _profile_ ability in order to switch from Lucene indexing/searching to plain Java code indexing/searching.
+
+###### TODO-01-b Run this test, it should fail
+
+Currently documents are not added to the index at all.
+We need to complete the code in order to fix the problem.
+
+###### TODO-01-c Add documents into index
+
+We just need to add documents to the plain java index implementation.
+
+###### TODO-01-d Run this test, it should pass
+
+With documents added to the index, the test should pass now.
+
+##### TODO-02 Commit indexed documents
+
+###### TODO-02-a Review this test, run it, it should fail. Why ?
+
+Documents are buffered into the index until a commit operation is called.
+
+###### TODO-02-b Look at this instruction, why do we need to call this method ?
+
+This commit operation will create and optimize searching structures.
+
+###### TODO-02-c Call the index to commit
+
+We just need to call the commit function of the index and it should work !
+Well, no. If you try to run the test again you will see that's not enough.
+It would have been to easy :p
+There's much work to be done. Let' continue.
+
+##### TODO-03 build searching structures
+###### TODO-03-a Call a method to create searching structures
+
+Figure out how to call the function which create searching structures.
+
+###### TODO-03-b Run this test, it should fail, why ?
+
+Even if the function which creates searching structures is called, currently the process is not complete.
+
+###### TODO-03-c Add the tokens in the field index for this content
+
+You need to tokenize the content of documents and add result tokens to the field index.
+A first simple tokenization function can be found in the class **TextAnalysis**:
+
+```java
+public static List<String> defaultAnalysis(String content) {
+        return Arrays.asList(StringUtils.stripAccents(content)
+                .split("[^a-zA-Z0-9]"));
+    }
+```
+
+###### TODO-03-d For each token, add it to posting list
+
+Now that tokens are created, we need to add them into posting lists.
+
+###### TODO-03-e Run this test, it should pass now :)
+
+After all this hard work, we should now be able to retrieve documents ! \o/ 
+Well done !
+
+##### TODO-04 Improve text analysis
+###### TODO-04-a Run this test it should fail, why is it failing ?
+
+The last test checked that these tokens where present in the index:
+
+```java
+assertThat(textInvertedIndex.keySet()).contains("Chapitre", "mouton", "SAUVAGE", "vraiment", "apparait");
+```
+
+But what if a use looks for "un mouton sauvage est plus dangereux qu'un moucool apprivoisé" ?
+The word "sauvage" is lowercased in the user query.
+
+The new test check that the lowercased token are present in the index and that's why it fails:
+
+```java
+assertThat(textInvertedIndex.keySet()).contains("chapitre", "mouton", "sauvage", "vraiment", "apparait");
+```
+
+###### TODO-04-b Create a new analysis method that applies lowercase filtering logic to produced tokens
+
+Add a lowercase function to the new analysis process.
+
+###### TODO-04-c Replace previous analysis with the one you just created
+
+Use your new incredible analysis function and check if it works.
+
+###### TODO-04-d Run this test it should pass
+
+Excellent ! The test now pass. Tokens are stored in their normalized form in the index.
+
+##### TODO-05 Create columnar storage for faceting purpose
+###### TODO-05-a First be sure to understand what's under testing here, run this test, it should fail
+
+If you want to use faceting or sorting functions, inverted indices are not good structures.
+You will need to create additional storage with complete field values in order to be able to use faceting and sorting.
+
+For instance, if you need faceting on the chapter field, you will want to aggregate documents on values like "Chapitre 1".
+Currently, inverted index stored the two tokens "chapitre" and "1" for such a field.
+
+Let's try to improve this.
+
+###### TODO-05-b Update columnar storage for this document and this value
+
+Add field values for each document in columnar storage.
+
+###### TODO-05-c Run this test, it should pass
+
+You should be able to use faceting now ! Well done.
+Let's start try search for documents now.
+
+##### TODO-06 Call searching function
+###### TODO-06-a Run this test, you should receive a Not yet implemented exception
+
+Let's start to use our new fresh created index.
+
+###### TODO-06-b Remove the exception, call the index to perform a search operations, returns only the 10 most relevant documents
+
+Searching functions are not used yet. Add needed functions call in the code.
+
+###### TODO-06-c Replace this empty List.of() with: Analyze the incoming query and search documents
+
+Analysis functions are used during indexing **AND** during searching processes.
+Add analysis function call.
+
+###### TODO-06-d Have a look at this, here we call the invertedIndex (You shall add a breakpoint here during Debug session)
+
+You should check the inner process while debugging here.
+
+###### TODO-06-e Run this test, it should pass
+
+Great ! You retrieved your first documents ! \o/
+But how are documents sorted ?
+
+##### TODO-07 Scoring
+###### TODO-07-a Run this test, it should fail
+
+Currently documents are just retrieved, they are not well sorted in order to get the best matches.
+
+###### TODO-07-b Replace this 1 by a call to our tfIdf method
+
+Let's compute the score for each document.
+A tf-idf function is implemented, make good use of it. 
+
+###### TODO-07-c Run this test, it should pass
+
+Your results are nearly perfect now.
+
+###### TODO-07-d Add an assertion on the score value
+
+Just make sure that's the case.
+
+##### TODO-08 Faceting
+###### TODO-08-a Run this test, it will fail
+
+Faceting functions are not used yet. Go on and finish the lab !
+
+###### TODO-08-b Collect the facets and add them to the builder
+
+Use the result collector in order to collect facets.
+
+###### TODO-08-c Review this facet collect method
+
+You can see that collecting facets is not an easy task.
+Document field values are used in order to aggregate and count documents.
+
+###### TODO-08-d Run this test, it should pass
+
+Facets are retrieved. Let's check how it works.
+
+###### TODO-08-e Add a breakpoint here and see what's happening here
+
+You can observe here the document aggregation.
+You can observe the facet reverse sorting as well.
+
+```java
+    List<FacetValue> facetValues = valueMap.entrySet().stream()
+            .map(e -> FacetValue.builder()
+                    .count(e.getValue())
+                    .key(e.getKey())
+                    .build())
+            // Sort facets by count
+            .sorted(Comparator.comparingInt(FacetValue::getCount).reversed())
+            .collect(Collectors.toList()); 
+```
+
+###### TODO-08-f Pass it to false
+
+You need to specify a that you want faceting on fields.
+Remember, it uses a specific columnar storage. 
+That mean additional disk and memory space.
+Let's try to disable the columnar storage.
+
+###### TODO-08-g Run this test, it will fail   
+
+Without columnar storage this exception is thrown:
+
+```
+java.lang.IllegalArgumentException: Field 'chapter' does not contain columnar storage
+```
+
+###### TODO-08-h Set it back to true :)
+
+The test works again.
+Now you are ready to use your service.
+
+##### TODO-09 Use the search engine
+###### TODO-09 You can run the app and play for the API as you did in first lab
+For example: http://localhost:8080/search?text=mouton&facet.field=isDialog&facet.field=isQuestion
+
+This is the end of the second lab, you can run the application and perform some searches using the web API :)
+Make sure to activate the "plain-java" profile !
