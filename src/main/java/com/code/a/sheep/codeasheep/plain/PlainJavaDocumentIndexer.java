@@ -32,6 +32,5 @@ public class PlainJavaDocumentIndexer implements DocumentIndexer {
     @Override
     public void commit() {
         // TODO-02-c Call the index to commit
-        index.commit();
     }
 }
