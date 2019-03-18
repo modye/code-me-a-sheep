@@ -18,8 +18,6 @@ public class LittlePrinceReaderTest {
 
     /**
      * Verifies we read 6 lines from the extract
-     * TODO-01-a Run this test, it should fail
-     * TODO-02-b Run this test, it should pass
      */
     @SneakyThrows
     @Test
@@ -37,8 +35,6 @@ public class LittlePrinceReaderTest {
     }
 
     /**
-     * TODO-01-b Review the document we are expecting
-     *
      * @return
      */
     private List<Document> expectedDocuments() {
