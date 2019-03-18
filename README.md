@@ -507,6 +507,7 @@ public static List<String> defaultAnalysis(String content) {
 Now that tokens are created, we need to add them into posting lists.
 
 ###### TODO-03-e Run this test, it should pass now :)
+###### TODO-03-f Run this test, it should pass now :)
 
 After all this hard work, we should now be able to retrieve documents ! \o/ 
 Well done !

@@ -53,6 +53,9 @@ public class PlainJavaDocumentIndexerTest {
     /**
      * Verifies 761 documents are indexed and are properly formed.
      * TODO-02-a Review this test, run it, it should fail. Why ?
+     *
+     * <p>
+     * TODO-03-f Run this test, it should pass now :)
      */
     @Test
     public void indexDocumentsAndCheckDocumentAreComplete() {
