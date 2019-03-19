@@ -25,6 +25,10 @@ public class PlainJavaDocumentStore {
         isCommitted = false;
     }
 
+    public int getNextDocumentId() {
+        return nextDocumentId.get();
+    }
+
     public int size() {
         return isCommitted ? store.length : 0;
     }

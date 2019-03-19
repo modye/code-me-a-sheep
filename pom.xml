@@ -12,7 +12,7 @@
     <artifactId>code-a-sheep</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>code-a-sheep</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Code a sheep application</description>
 
     <properties>
         <java.versions>11</java.versions>

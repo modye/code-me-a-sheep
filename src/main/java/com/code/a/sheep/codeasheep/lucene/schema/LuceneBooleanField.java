@@ -20,6 +20,9 @@ import java.util.Map;
  */
 public class LuceneBooleanField extends LuceneField<Boolean> {
 
+    /**
+     * Suffix used to create another field using fast search
+     */
     private static final String FAST_SUFFIX = ".fast";
 
     @Builder
@@ -27,16 +30,27 @@ public class LuceneBooleanField extends LuceneField<Boolean> {
         super(name, isStored, withRawField);
     }
 
+    /**
+     * Generate Lucene fields
+     *
+     * @param field
+     * @return
+     */
     public List<Field> generateLuceneFields(Map.Entry<String, Boolean> field) {
         List<Field> luceneFields = new ArrayList<>();
         int value = field.getValue() ? 1 : 0;
 
+
+        // Add an int field with its value in the index for fast search
         luceneFields.add(new IntPoint(field.getKey() + FAST_SUFFIX, value));
 
+        // If the field has a raw field, creates another field.
+        // This new field is not a TextField, but a NumericDocValuesField
         if (isWithRawField()) {
             luceneFields.add(new NumericDocValuesField(getRawFieldName(field.getKey()), value));
         }
 
+        // Is the fields must be stored, store it
         if (isStored()) {
             luceneFields.add(new StoredField(field.getKey(), value));
         }

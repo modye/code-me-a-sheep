@@ -3,53 +3,69 @@ package com.code.a.sheep.codeasheep.plain.schema;
 import com.code.a.sheep.codeasheep.plain.index.PlainJavaFieldIndex;
 import com.code.a.sheep.codeasheep.plain.index.PlainJavaPostingList;
 import com.code.a.sheep.codeasheep.plain.index.TextAnalysis;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
 @Data
-@Builder
 public class PlainJavaField {
     private final String name;
-    private final PlainJavaFieldIndex invertedIndex = new PlainJavaFieldIndex();
+    private boolean withColumnarStorage;
 
-    // TODO add columnar storage
+
+    private final PlainJavaFieldIndex fieldIndex;
+
+    @Builder
+    public PlainJavaField(String name, boolean withColumnarStorage) {
+        this.name = name;
+        this.withColumnarStorage = withColumnarStorage;
+        fieldIndex = new PlainJavaFieldIndex(withColumnarStorage);
+    }
 
     /**
      * Create indexing structures.
      * documentCount can be used for storage optimization.
      *
-     * @param documentId    document storage document id
-     * @param content       field content
-     * @param documentCount total document count in
+     * @param documentId document storage document id
+     * @param content    field content
      */
-    public void indexFieldContent(int documentId, Object content, int documentCount) {
-        // Call analysis
-        TextAnalysis.defaultAnalysis(content.toString())
-                .stream()
-                .forEach(token -> invertedIndex.indexDocument(documentId, token));
+    //TODO-04-c Replace previous analysis with the one you just created
+    public void indexFieldContent(int documentId, String content) {
+        // Call analysis and add tokens to the inverted index
+        //TODO-03-c Add the tokens in the field index for this content
+        List<String> tokens = TextAnalysis.lowercasedAnalysis(content);
+        fieldIndex.addToken(documentId, tokens, content);
     }
 
     /**
      * Search document with a given query content.
+     *
      * @param query content to retrieve
      * @return the result posting lists
      */
-    public List<PlainJavaPostingList> searchDocuments(String query) {
-        return TextAnalysis.defaultAnalysis(query)
-                .stream()
-                .map(invertedIndex::searchDocument)
-                .collect(Collectors.toList());
+    public List<PlainJavaPostingList.PostingIterator> searchDocuments(String query) {
+        // TODO-06-c Replace this empty List.of() with: Analyze the incoming query and search documents
+        return TextAnalysis.lowercasedAnalysis(query).stream().map(fieldIndex::searchDocument).collect(Collectors.toList());
     }
 
     /**
      * Finalize searching structures
      */
     public void commit() {
-        invertedIndex.commit();
+        fieldIndex.commit();
+    }
+
+    public Object getTokenForDocument(int documentId) {
+        if (!withColumnarStorage) {
+            throw new IllegalArgumentException("Field '" + name + "' does not contain columnar storage");
+        }
+
+        return fieldIndex.getTokenForDocument(documentId);
+    }
+
+    public void setColumnarStorageSize(int size) {
+        fieldIndex.setColumnarStorageSize(size);
     }
 }

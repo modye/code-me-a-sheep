@@ -15,21 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Representation of a {@link String} field in Lucene.
+ */
 public class LuceneTextField extends LuceneField<String> {
+
     @Builder
     public LuceneTextField(String name, boolean isStored, boolean withRawField) {
         super(name, isStored, withRawField);
     }
 
+    /**
+     * Generate Lucene fields
+     *
+     * @param field
+     * @return
+     */
     public List<Field> generateLuceneFields(Map.Entry<String, String> field) {
-        List<Field> luceneFields = new ArrayList<>();
         String value = field.getValue();
 
-        // TODO ?
+        List<Field> luceneFields = new ArrayList<>();
 
-
+        // Add a text field with its value in the index, store it if needed
         luceneFields.add(new TextField(field.getKey(), value, isStored() ? Field.Store.YES : Field.Store.NO));
 
+        // If the field has a raw field, creates another field.
+        // This new field is not a TextField, but a SortedDocValuesField
         if (this.isWithRawField()) {
             luceneFields.add(new SortedDocValuesField(getRawFieldName(field.getKey()), new BytesRef(field.getValue())));
         }

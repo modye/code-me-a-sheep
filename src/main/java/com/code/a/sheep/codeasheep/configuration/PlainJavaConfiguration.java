@@ -25,14 +25,19 @@ public class PlainJavaConfiguration {
                 // Chapter is stored and has a raw field
                 .addField(PlainJavaField.builder()
                         .name(CHAPTER.getName())
+                        //TODO-08-f Pass it to false
+                        //TODO-08-h Set it back to true :)
+                        .withColumnarStorage(true)
                         .build())
                 // isQuestion is not stored and has a raw field
                 .addField(PlainJavaField.builder()
                         .name(IS_QUESTION.getName())
+                        .withColumnarStorage(true)
                         .build())
                 // isDialog is not stored and has a raw field
                 .addField(PlainJavaField.builder()
                         .name(IS_DIALOG.getName())
+                        .withColumnarStorage(true)
                         .build());
     }
 }

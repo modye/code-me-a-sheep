@@ -4,36 +4,40 @@ import com.code.a.sheep.codeasheep.domain.Document;
 import com.code.a.sheep.codeasheep.domain.SearchResult;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaField;
 import com.code.a.sheep.codeasheep.plain.schema.PlainJavaSchema;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.code.a.sheep.codeasheep.domain.DocumentFields.TEXT;
 
 /**
  * The main index class.
  * <p>
  * It is a document container with searching structures.
  * <p>
- * TODO: Add synchronization between document addition and flush operation.
  */
+@Component
+@RequiredArgsConstructor
 public class PlainJavaIndex {
     private final PlainJavaSchema schema;
-    private final PlainJavaDocumentStore documentStore;
-    private final PlainJavaResultCollector resultCollector;
+    private PlainJavaDocumentStore documentStore;
+    private PlainJavaResultCollector resultCollector;
 
-    public PlainJavaIndex(PlainJavaSchema schema) {
-        this.schema = schema;
+    @PostConstruct
+    public void init() {
         documentStore = new PlainJavaDocumentStore();
-        resultCollector = new PlainJavaResultCollector(documentStore);
+        resultCollector = new PlainJavaResultCollector(documentStore, schema);
     }
 
     public void addDocuments(@NotNull List<Document> documents) {
-        documents.stream().forEach(this::addDocument);
-    }
-
-    private void addDocument(Document document) {
-        // store document
-        documentStore.addDocument(document);
+        documents.forEach(document -> {
+            // store document
+            documentStore.addDocument(document);
+        });
     }
 
     // TODO should be synchronized with document addition
@@ -45,36 +49,48 @@ public class PlainJavaIndex {
         Collection<PlainJavaDocument> bufferedDocuments = documentStore.getBufferedDocuments();
         if (bufferedDocuments != null) {
             bufferedDocuments.forEach(document -> {
-                // for each field, create searching structures
-                document.entrySet().forEach(e -> {
-                    PlainJavaField plainJavaField = schema.get(e.getKey());
-                    if (plainJavaField != null) {
-                        plainJavaField.indexFieldContent(document.getId(), e.getValue(), bufferedDocuments.size());
-                    }
-                });
+                // TODO-03-a Call a method to create searching structures
+                createSearchStructuresForDocument(document);
             });
         }
 
         documentStore.commit();
 
         // finalize searching structures
-        schema.entrySet().forEach(entry -> entry.getValue().commit());
+        schema.forEach((key, value) -> value.commit());
+    }
+
+    private void createSearchStructuresForDocument(PlainJavaDocument document) {
+        document.forEach((key, value) -> {
+            PlainJavaField plainJavaField = schema.get(key);
+            if (plainJavaField != null) {
+                plainJavaField.setColumnarStorageSize(documentStore.getNextDocumentId());
+                plainJavaField.indexFieldContent(document.getId(), value.toString());
+            }
+        });
     }
 
     /**
      * Search documents from a simple query.
      * A simple score is computed during
      *
-     * @param query given query
-     * @param size  number of document to retrieve
+     * @param query       given query
+     * @param facetFields facet fields
+     * @param size        number of document to retrieve
      * @return a search result with scored top documents, faceting and total document count
      */
-    public SearchResult search(String query, int size) {
+    public SearchResult search(String query, List<String> facetFields, int size) {
         Map<String, String> parsedQuery = parseQuery(query);
 
-        List<PlainJavaPostingList> postingLists = retrievePostingLists(parsedQuery);
+        List<PlainJavaPostingList.PostingIterator> postingLists = retrievePostingLists(parsedQuery);
 
-        return resultCollector.collectAndComputeScore(postingLists, size);
+        SearchResult.SearchResultBuilder builder = SearchResult.builder();
+
+        List<Integer> matchingDocumentIds = resultCollector.collectDocsAndComputeScores(builder, postingLists, size);
+        // TODO-08-b Collect the facets and add them to the builder
+        builder.facets(resultCollector.collectFacets(matchingDocumentIds, facetFields));
+
+        return builder.build();
     }
 
     /**
@@ -83,12 +99,15 @@ public class PlainJavaIndex {
      * @param parsedQuery query to be used
      * @return a list of posting lists.
      */
-    private List<PlainJavaPostingList> retrievePostingLists(Map<String, String> parsedQuery) {
+    private List<PlainJavaPostingList.PostingIterator> retrievePostingLists(Map<String, String> parsedQuery) {
         return parsedQuery.entrySet().stream()
                 .map(entry -> {
                     PlainJavaField plainJavaField = schema.get(entry.getKey());
                     if (plainJavaField != null) {
-                        List<PlainJavaPostingList> postingLists = plainJavaField.searchDocuments(entry.getValue());
+                        List<PlainJavaPostingList.PostingIterator> postingLists = plainJavaField.searchDocuments(entry.getValue())
+                                .stream()
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
                         postingLists.forEach(p -> p.setSearchedField(entry.getKey()));
                         return postingLists;
                     } else {
@@ -101,7 +120,7 @@ public class PlainJavaIndex {
     }
 
     /**
-     * Parse simple queries like 'field1:word1 field2:word2'
+     * Ugly parsing of simple queries like 'field1:word1 field2:word2'
      *
      * @param query the given query
      * @return a query in the form of {@link HashMap}
@@ -109,8 +128,37 @@ public class PlainJavaIndex {
     private Map<String, String> parseQuery(String query) {
         String[] clauses = query.split(" ");
 
-        return Arrays.stream(clauses)
-                .map(clause -> clause.split(":"))
-                .collect(Collectors.toMap(clause -> clause[0], clause -> clause[1]));
+        Map<String, String> queryMap = new HashMap<>();
+
+        try {
+            Arrays.stream(clauses)
+                    .map(clause -> clause.split(":"))
+                    .forEach(clause -> {
+                        String fieldName = getFieldName(clause);
+                        String queryText = getQueryText(clause);
+
+                        queryMap.compute(fieldName, (field, text) -> {
+                            if (text == null) {
+                                text = queryText;
+                            } else {
+                                text += " " + queryText;
+                            }
+
+                            return text;
+                        });
+                    });
+
+            return queryMap;
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Error while parsing query: '" + query + "'");
+        }
+    }
+
+    private String getQueryText(String[] clause) {
+        return clause.length == 1 ? clause[0] : clause[1];
+    }
+
+    private String getFieldName(String[] clause) {
+        return clause.length == 1 ? TEXT.getName() : clause[0];
     }
 }
